@@ -1,7 +1,7 @@
 var url = require('url');
 var http = require('http');
 
-var port = 8000;
+var port = 80;
 
 // a map of all views offered by the server
 var routes = {};
