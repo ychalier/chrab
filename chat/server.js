@@ -34,10 +34,11 @@ function exitWithErrorCode(res, statusCode) {
 
 function handleRequest(req, res) {
 
+  // Log entring request
   const { headers, method, url } = req;
   console.log(headers.host + "\t" + method + "\t" + url);
 
-  let body = [];
+  let body = [];  // If appropriate, will store POST body (else is kept empty)
   req.on('error', (err) => {
     console.error(err);
     exitWithErrorCode(res, 400);  // Bad Request
@@ -52,20 +53,21 @@ function handleRequest(req, res) {
       exitWithErrorCode(res, 500);  // Internal Server Error
     });
 
-    var routeFound = false;
-    var radix = req.url.split("?")[0];
+    // routing operations: match method and then route
+    var found = false;
+    var radix = req.url.split("?")[0];  // remove GET arguments for matching
     if (method in routes) {
       for (route in routes[method]) {
-        let regex = new RegExp(route[1], 'i');
-        if (regex.exec(radix)) {
-          routeFound = true;
+        let regex = new RegExp(route[1], 'i');  // regex match case insensitive
+        if (regex.exec(radix)) {  // 'null' if exec fails
+          found = true;
           routes[method][route](req, res);
           break;
         }
       }
     }
 
-    if (!routeFound) {
+    if (!found) {
       exitWithErrorCode(res, 404);  // Not Found
     }
 
