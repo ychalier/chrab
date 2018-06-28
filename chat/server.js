@@ -8,6 +8,7 @@ var routes = {
   'GET': {
 
     '^/$': function (req, res, body) {
+      console.log("Using hello world!");
       res.writeHead(200, {
         'Content-Type': 'text/plain'
       });
@@ -56,7 +57,7 @@ function handleRequest(req, res) {
     var radix = req.url.split("?")[0];  // remove GET arguments for matching
     if (method in routes) {
       for (route in routes[method]) {
-        let regex = new RegExp(route[1], 'i');  // regex match case insensitive
+        let regex = new RegExp(route, 'i');  // regex match case insensitive
         if (regex.exec(radix)) {  // .exec() returns 'null' if it fails
           found = true;
           routes[method][route](req, res, body);
