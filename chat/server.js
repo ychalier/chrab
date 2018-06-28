@@ -1,12 +1,13 @@
 const http = require('http');
 const sqlite3 = require('sqlite3').verbose();
+const auth = require('./auth');
 
 var port = 8000;
 
 var routes = {
   'GET': {
 
-    '^/$': function (req, res) {
+    '^/$': function (req, res, body) {
       res.writeHead(200, {
         'Content-Type': 'text/plain'
       });
@@ -17,13 +18,7 @@ var routes = {
   },
   'POST': {
 
-    '^/$': function (req, res) {
-      res.writeHead(200, {
-        'Content-Type': 'text/plain'
-      });
-      res.write(req.body);
-      res.end();
-    }
+    '^/register$': auth.register
 
   }
 }
@@ -62,7 +57,7 @@ function handleRequest(req, res) {
         let regex = new RegExp(route[1], 'i');  // regex match case insensitive
         if (regex.exec(radix)) {  // .exec() returns 'null' if it fails
           found = true;
-          routes[method][route](req, res);
+          routes[method][route](req, res, body);
           break;
         }
       }
@@ -83,7 +78,7 @@ function load_database() {
     }
   });
   db.run('CREATE TABLE IF NOT EXISTS users '
-    + '(id INT PRIMARY KEY NOT NULL, login TEXT, passwd TEXT)');
+    + '(id INTEGER PRIMARY KEY AUTOINCREMENT, login TEXT, passwd TEXT)');
   return db;
 }
 
