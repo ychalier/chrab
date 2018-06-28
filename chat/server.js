@@ -1,4 +1,5 @@
 const http = require('http');
+const sqlite3 = require('sqlite3').verbose();
 
 var port = 8000;
 
@@ -59,7 +60,7 @@ function handleRequest(req, res) {
     if (method in routes) {
       for (route in routes[method]) {
         let regex = new RegExp(route[1], 'i');  // regex match case insensitive
-        if (regex.exec(radix)) {  // 'null' if exec fails
+        if (regex.exec(radix)) {  // .exec() returns 'null' if it fails
           found = true;
           routes[method][route](req, res);
           break;
