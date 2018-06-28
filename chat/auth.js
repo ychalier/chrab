@@ -15,13 +15,13 @@ function register(req, res, body) {
       }
     });
 
-    let login = credentials['login']; //TODO: escape (beware of injections!)
+    let login = credentials['login'];
     let hash =  crypto.createHmac('sha256', credentials['passwd'])
                       .update(login)
                       .digest('hex');
 
-    db.run('INSERT INTO users(login, passwd) VALUES ("'
-      + login + '","' + hash + '")', (err) => {
+    db.run('INSERT INTO users(login, passwd) VALUES (?, ?)', [login, hash],
+      (err) => {
         if (err) {
           console.error(err.message);
           res.statusCode = 500;  // Internal Server Error
