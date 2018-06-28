@@ -107,19 +107,32 @@ function requestToken(req, res, body) {
                                      .update(salt_refresh)
                                      .digest('hex');
 
-            //TODO: store client, agent, hash, and timestamp, username
+            //TODO: store hash, and timestamp, username
+            db.run('INSERT INTO tokens(type, hash, expires, username) '
+              + 'VALUES (?, ?, ?, ?), (?, ?, ?, ?)',
+              ['access', hash_access, 3600, rows.login, 'refresh',
+              hash_refresh, 0, rows.login],
+              (err) => {
 
-            let json = {
-              'access_token': salt_access,
-              'refresh_token': salt_refresh,
-              'expires_in': 3600
-            };
+                if (err) {
+                  console.error(err.message);
+                  res.statusCode = 500;
+                  res.end();
 
-            res.writeHead(200, {
-              'Content-Type': 'application/json'
+                } else {
+                  let json = {
+                    'access_token': salt_access,
+                    'refresh_token': salt_refresh,
+                    'expires_in': 3600
+                  };
+                  res.writeHead(200, {
+                    'Content-Type': 'application/json'
+                  });
+                  res.write(JSON.stringify(json));
+                  res.end();
+                }
             });
-            res.write(JSON.stringify(json));
-            res.end();
+
           }
         }
 
