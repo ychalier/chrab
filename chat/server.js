@@ -75,5 +75,24 @@ function handleRequest(req, res) {
   });
 }
 
+function load_database() {
+  let filename = './chat.db';
+  let db = new sqlite3.Database(filename, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+  });
+  db.run('CREATE TABLE IF NOT EXISTS users '
+    + '(id INT PRIMARY KEY NOT NULL, login TEXT, passwd TEXT)');
+  return db;
+}
+
+// making sure database exists and contains the righ tables
+load_database().close((err) => {
+  if (err) {
+    console.error(err.message);
+  }
+});
+
 console.log("Starting server on port " + port + "...");
 http.createServer(handleRequest).listen(port);
