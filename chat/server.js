@@ -35,7 +35,7 @@ function handleRequest(req, res) {
 
   // Log entring request
   const { headers, method, url } = req;
-  console.log(headers.host + "\t" + method + "\t" + url);
+  console.log(req.connection.remoteAddress + "\t" + method + "\t" + url);
 
   let body = [];  // If appropriate, will store POST body (else is kept empty)
   req.on('error', (err) => {

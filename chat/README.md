@@ -9,3 +9,11 @@
  - [HTTPS | Node.js](https://nodejs.org/api/https.html)
  - [Regex101](https://regex101.com)
  - [Postman](https://www.getpostman.com)
+
+## NodeJS packages
+
+See [package-lock.json](package-lock.json) for full details. Three main packages are used and need to be installed:
+
+ - `http`
+ - `sqlite3`
+ - `crypto`

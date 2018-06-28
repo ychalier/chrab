@@ -94,7 +94,31 @@ function requestToken(req, res, body) {
             res.write('Invalid login or password.');
             res.end();
           } else {
-            res.statusCode = 200;
+
+            // Token generation
+            let client = req.connection.remoteAddress;
+            let agent = headers['user-agent'];
+            let salt_access = crypto.randomBytes(16).toString('hex');
+            let hash_access = crypto.createHmac('sha256', client + agent)
+                                    .update(salt_access)
+                                    .digest('hex');
+            let salt_refresh = crypto.randomBytes(16).toString('hex');
+            let hash_refresh = crypto.createHmac('sha256', client + agent)
+                                     .update(salt_refresh)
+                                     .digest('hex');
+
+            //TODO: store client, agent, hash, and timestamp, username
+
+            let json = {
+              'access_token': salt_access,
+              'refresh_token': salt_refresh,
+              'expires_in': 3600
+            };
+
+            res.writeHead(200, {
+              'Content-Type': 'application/json'
+            });
+            res.write(JSON.stringify(json));
             res.end();
           }
         }
