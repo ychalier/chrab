@@ -13,7 +13,9 @@ var routes = {
       });
       res.write('Hello, World!');
       res.end();
-    }
+    },
+
+    '^/token$': auth.requestToken
 
   },
   'POST': {

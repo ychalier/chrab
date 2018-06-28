@@ -48,4 +48,8 @@ function register(req, res, body) {
 
 }
 
-module.exports = {register};
+function requestToken(req, res, body) {
+  const { headers, method, url } = req;
+}
+
+module.exports = {register, requestToken};
