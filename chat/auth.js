@@ -1,11 +1,11 @@
 const sqlite3 = require('sqlite3').verbose();
+const crypto = require('crypto');
+
 
 function register(req, res, body) {
   const { headers, method, url } = req;
-  console.log("Registration!");
 
   let credentials = JSON.parse(body);
-  console.log(credentials);
   if ('login' in credentials && 'passwd' in credentials) {
 
     // connecting to databse
@@ -16,7 +16,9 @@ function register(req, res, body) {
     });
 
     let login = credentials['login']; //TODO: escape (beware of injections!)
-    let hash = credentials['passwd']; //TODO: use proper hash function
+    let hash =  crypto.createHmac('sha256', credentials['passwd'])
+                      .update(login)
+                      .digest('hex');
 
     db.run('INSERT INTO users(login, passwd) VALUES ("'
       + login + '","' + hash + '")', (err) => {
@@ -43,8 +45,6 @@ function register(req, res, body) {
     res.write('Missing login or password.');
     res.end();
   }
-
-
 
 }
 
