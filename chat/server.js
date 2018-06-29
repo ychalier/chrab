@@ -16,7 +16,8 @@ var routes = {
       res.end();
     },
 
-    '^/token$': auth.requestToken
+    '^/token$': auth.requestToken,
+    '^/validate-token$': auth.validateToken
 
   },
   'POST': {
