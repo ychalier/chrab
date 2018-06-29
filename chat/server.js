@@ -1,5 +1,7 @@
 const http = require('http');
 const sqlite3 = require('sqlite3').verbose();
+
+const channel = require('./channel');
 const auth = require('./auth');
 
 var port = 8000;
@@ -8,7 +10,6 @@ var routes = {
   'GET': {
 
     '^/$': function (req, res, body) {
-      console.log("Using hello world!");
       res.writeHead(200, {
         'Content-Type': 'text/plain'
       });
@@ -24,7 +25,9 @@ var routes = {
   },
   'POST': {
 
-    '^/register$': auth.register
+    '^/register$': auth.register,
+    '^/channel/[\\w-]+$': channel.postMessage,
+    '^/create-channel$': channel.createChannel
 
   }
 }
@@ -88,6 +91,11 @@ function load_database() {
   db.run('CREATE TABLE IF NOT EXISTS tokens '
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, hash TEST, '
     + 'expires INTEGER, username TEXT, t INTEGER)');
+  db.run('CREATE TABLE IF NOT EXISTS channels '
+    + '(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)');
+  db.run('CREATE TABLE IF NOT EXISTS messages '
+    + '(id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, channel INTEGER, '
+    + 'username TEXT, t INTEGER)');
   return db;
 }
 

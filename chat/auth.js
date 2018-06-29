@@ -291,4 +291,5 @@ function logout(req, res, body) {
 }
 
 
-module.exports = {register, requestToken, validateToken, refreshToken, logout};
+module.exports = {register, requestToken, checkToken, validateToken,
+  refreshToken, logout};
