@@ -110,8 +110,8 @@ function requestToken(req, res, body) {
             //TODO: store hash, and timestamp, username
             db.run('INSERT INTO tokens(type, hash, expires, username) '
               + 'VALUES (?, ?, ?, ?), (?, ?, ?, ?)',
-              ['access', hash_access, 3600, rows.login, 'refresh',
-              hash_refresh, 0, rows.login],
+              ['access', hash_access, 3600, rows[0].login, 'refresh',
+              hash_refresh, 0, rows[0].login],
               (err) => {
 
                 if (err) {
@@ -144,9 +144,8 @@ function requestToken(req, res, body) {
 }
 
 
-function validateToken(req, res, body) {
+function checkToken(req, res, callback) {
   const { headers, method, url } = req;
-
   if ('authorization' in headers) {
 
     let db = new sqlite3.Database('chat.db', (err) => {
@@ -154,13 +153,12 @@ function validateToken(req, res, body) {
         console.error(err.message);
       }
     });
-
     let token = headers['authorization'].split(' ')[1];
     let client = req.connection.remoteAddress;
     let agent = headers['user-agent'];
     let hash = crypto.createHmac('sha256', client + agent)
-                    .update(token)
-                    .digest('hex');
+                     .update(token)
+                     .digest('hex');
     db.all('SELECT * FROM tokens WHERE hash=(?)', [hash],
       (err, rows) => {
         if (err) {
@@ -171,10 +169,8 @@ function validateToken(req, res, body) {
           let valid = rows.length > 0 && rows[0].type == 'access' &&
             (new Date().getTime() - new Date(rows[0].t).getTime()
             < 1000 * (rows[0].expires + 7200));
-
           if (valid) {
-            res.statusCode = 200;
-            res.end();
+            callback(rows[0].username);
           } else {
             res.statusCode = 403;
             res.write('Invalid token');
@@ -187,5 +183,14 @@ function validateToken(req, res, body) {
     res.end();
   }
 }
+
+
+function validateToken(req, res, body) {
+  checkToken(req, res, (login) => {
+    res.statusCode = 200;
+    res.end();
+  });
+}
+
 
 module.exports = {register, requestToken, validateToken};
