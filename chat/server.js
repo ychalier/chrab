@@ -1,5 +1,7 @@
 const http = require('http');
 const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
+const mime = require('mime-types');
 
 const channel = require('./channel');
 const auth = require('./auth');
@@ -22,7 +24,26 @@ var routes = {
     '^/refresh-token$': auth.refreshToken,
     '^/logout$': auth.logout,
     '^/channel/[\\w-]+$': channel.listMessages,
-    '^/channels': channel.listChannels
+    '^/channels': channel.listChannels,
+    '^/webclient/': function (req, res, body) {
+      const { headers, method, url } = req;
+      let path = "";
+      if (url == '/webclient/') {
+        path = 'webclient/index.html';
+      } else {
+        path = url.substring(1);
+      }
+      fs.readFile(path, function(err, data) {
+        if (err) {
+          res.statusCode = 404;
+          res.end();
+        } else {
+          res.writeHead(200, {'Content-Type': mime.lookup(path)});
+          res.write(data);
+          res.end();
+        }
+      });
+    }
 
   },
   'POST': {
