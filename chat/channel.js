@@ -103,4 +103,22 @@ function listMessages(req, res, body) {
   });
 }
 
-module.exports = {createChannel, postMessage, listMessages};
+function listChannels(req, res, body) {
+  auth.checkToken(req, res, (login) => {
+    const { headers, method, url } = req;
+    let db = new sqlite3.Database('chat.db', (err) => {
+      if (err) { errorReply(res, err); }
+    });
+    db.all('SELECT name FROM channels', [],
+      (err, rows) => {
+        if (err) { errorReply(res, err); }
+        else {
+          res.statusCode = 200;
+          res.write(JSON.stringify(rows));
+          res.end();
+        }
+    });
+  });
+}
+
+module.exports = {createChannel, postMessage, listMessages, listChannels};

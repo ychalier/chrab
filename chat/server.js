@@ -21,7 +21,8 @@ var routes = {
     '^/validate-token$': auth.validateToken,
     '^/refresh-token$': auth.refreshToken,
     '^/logout$': auth.logout,
-    '^/channel/[\\w-]+$': channel.listMessages
+    '^/channel/[\\w-]+$': channel.listMessages,
+    '^/channels': channel.listChannels
 
   },
   'POST': {
