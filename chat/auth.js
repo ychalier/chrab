@@ -96,6 +96,7 @@ function requestToken(req, res, body) {
           } else {
 
             // Token generation
+            //TODO: use int column to store new Date().getTime()
             let client = req.connection.remoteAddress;
             let agent = headers['user-agent'];
             let salt_access = crypto.randomBytes(16).toString('hex');
@@ -107,7 +108,6 @@ function requestToken(req, res, body) {
                                      .update(salt_refresh)
                                      .digest('hex');
 
-            //TODO: store hash, and timestamp, username
             db.run('INSERT INTO tokens(type, hash, expires, username) '
               + 'VALUES (?, ?, ?, ?), (?, ?, ?, ?)',
               ['access', hash_access, 3600, rows[0].login, 'refresh',
@@ -193,4 +193,72 @@ function validateToken(req, res, body) {
 }
 
 
-module.exports = {register, requestToken, validateToken};
+function refreshToken(req, res, body) {
+  const { headers, method, url } = req;
+  if ('authorization' in headers) {
+
+    let db = new sqlite3.Database('chat.db', (err) => {
+      if (err) {
+        console.error(err.message);
+      }
+    });
+    let token = headers['authorization'].split(' ')[1];
+    let client = req.connection.remoteAddress;
+    let agent = headers['user-agent'];
+    let hash = crypto.createHmac('sha256', client + agent)
+                     .update(token)
+                     .digest('hex');
+    db.all('SELECT * FROM tokens WHERE hash=(?)', [hash],
+      (err, rows) => {
+        if (err) {
+          console.error(err.message);
+          res.statusCode = 500;
+          res.end();
+        } else {
+          let valid = rows.length > 0 && rows[0].type == 'refresh';
+          if (valid) {
+            // generate new token and delete old ones
+            //TODO: delete old ones
+            let client = req.connection.remoteAddress;
+            let agent = headers['user-agent'];
+            let salt = crypto.randomBytes(16).toString('hex');
+            let hash = crypto.createHmac('sha256', client + agent)
+                             .update(salt)
+                             .digest('hex');
+
+            db.run('INSERT INTO tokens(type, hash, expires, username) '
+              + 'VALUES (?, ?, ?, ?)',
+              ['access', hash, 3600, rows[0].login],
+              (err) => {
+                if (err) {
+                  console.error(err.message);
+                  res.statusCode = 500;
+                  res.end();
+                } else {
+                  let json = {
+                    'access_token': salt,
+                    'expires_in': 3600
+                  };
+                  res.writeHead(200, {
+                    'Content-Type': 'application/json'
+                  });
+                  res.write(JSON.stringify(json));
+                  res.end();
+                }
+            });
+
+          } else {
+            res.statusCode = 403;
+            res.write('Invalid token');
+            res.end();
+          }
+        }
+    });
+  } else {
+    res.statusCode = 401;
+    res.end();
+  }
+}
+
+
+module.exports = {register, requestToken, validateToken, refreshToken};
