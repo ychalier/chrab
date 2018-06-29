@@ -118,28 +118,32 @@ function requestToken(req, res, body) {
             let refresh = generateToken(req);
             let now = new Date();
 
-            //TODO: use int column to store new Date().getTime()
-            db.run('INSERT INTO tokens(type, hash, expires, username, t) '
-              + 'VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)',
-              ['access', access.hash, 3600, rows[0].login, now.getTime(),
-              'refresh', refresh.hash, 0, rows[0].login, now.getTime()],
-              (err) => {
-                if (err) { errorReply(res, err); }
-                else {
-                  let json = {
-                    'access_token': access.salt,
-                    'refresh_token': refresh.salt,
-                    'delivered': now.toString(),
-                    'expires_in': 3600
-                  };
-                  res.writeHead(200, {
-                    'Content-Type': 'application/json'
-                  });
-                  res.write(JSON.stringify(json));
-                  res.end();
-                }
+            db.run('DELETE FROM tokens WHERE username=(?)', [rows[0].login],
+            (err) => {
+              if (err) { errorReply(res, err); }
+              else {
+                db.run('INSERT INTO tokens(type, hash, expires, username, t) '
+                  + 'VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)',
+                  ['access', access.hash, 3600, rows[0].login, now.getTime(),
+                  'refresh', refresh.hash, 0, rows[0].login, now.getTime()],
+                  (err) => {
+                    if (err) { errorReply(res, err); }
+                    else {
+                      let json = {
+                        'access_token': access.salt,
+                        'refresh_token': refresh.salt,
+                        'delivered': now.toString(),
+                        'expires_in': 3600
+                      };
+                      res.writeHead(200, {
+                        'Content-Type': 'application/json'
+                      });
+                      res.write(JSON.stringify(json));
+                      res.end();
+                    }
+                });
+              }
             });
-
           }
         }
     });
@@ -199,28 +203,35 @@ function refreshToken(req, res, body) {
 
     db.all('SELECT * FROM tokens WHERE hash=(?)', [hash],
       (err, rows) => {
-        if (err) { errorReply(res, err)}
+        if (err) { errorReply(res, err); }
         else {
           if (rows.length > 0 && rows[0].type == 'refresh') {
             // generate new token and delete old ones
-            //TODO: delete old ones
             let { salt, hash } = generateToken(req);
-            db.run('INSERT INTO tokens(type, hash, expires, username) '
-              + 'VALUES (?, ?, ?, ?)',
-              ['access', hash, 3600, rows[0].login],
-              (err) => {
-                if (err) { errorReply(res, err); } else {
-                  let json = {
-                    'access_token': salt,
-                    'expires_in': 3600
-                  };
-                  res.writeHead(200, {
-                    'Content-Type': 'application/json'
+            let now = new Date();
+            db.run('DELETE FROM tokens WHERE type="access" AND username=(?)',
+              [rows[0].username], (err) => {
+                if (err) { errorReply(res, err); }
+                else {
+                  db.run('INSERT INTO tokens(type, hash, expires, username, t)'
+                    + ' VALUES (?, ?, ?, ?, ?)',
+                    ['access', hash, 3600, rows[0].username, now.getTime()],
+                    (err) => {
+                      if (err) { errorReply(res, err); } else {
+                        let json = {
+                          'access_token': salt,
+                          'delivered': now.toString(),
+                          'expires_in': 3600
+                        };
+                        res.writeHead(200, {
+                          'Content-Type': 'application/json'
+                        });
+                        res.write(JSON.stringify(json));
+                        res.end();
+                      }
                   });
-                  res.write(JSON.stringify(json));
-                  res.end();
                 }
-            });
+              });
           } else {
             basicReply(res, 403, 'Invalid token');  // Forbidden
           }
