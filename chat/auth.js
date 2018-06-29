@@ -2,6 +2,56 @@ const sqlite3 = require('sqlite3').verbose();
 const crypto = require('crypto');
 
 
+function basicReply(res, statusCode, message='') {
+  res.statusCode = statusCode;
+  res.write(message);
+  res.end();
+}
+
+
+function errorReply(res, err) {
+  console.error(err.message);
+  basicReply(res, 500);  // Internal Server Error
+}
+
+
+function readLoginPasswordHash(req) {
+  let out = {}
+  let basicAuthorization = req.headers['authorization'].split(' ')[1]
+  let credentials = new Buffer.from(basicAuthorization, 'base64')
+                              .toString()
+                              .split(':');
+  out.login = credentials[0];
+  out.hash = crypto.createHmac('sha256', credentials[1])
+                   .update(credentials[0])
+                   .digest('hex');
+  return out;
+}
+
+
+function generateToken(req) {
+  let out = {};
+  let client = req.connection.remoteAddress;
+  let agent = req.headers['user-agent'];
+  out.salt = crypto.randomBytes(16).toString('hex');
+  out.hash = crypto.createHmac('sha256', client + agent)
+                   .update(out.salt)
+                   .digest('hex');
+  return out
+}
+
+
+function readTokenHash(req) {
+  let token = req.headers['authorization'].split(' ')[1];
+  let client = req.connection.remoteAddress;
+  let agent = req.headers['user-agent'];
+  let hash = crypto.createHmac('sha256', client + agent)
+                   .update(token)
+                   .digest('hex');
+  return hash;
+}
+
+
 function register(req, res, body) {
   const { headers, method, url } = req;
 
@@ -10,9 +60,7 @@ function register(req, res, body) {
 
     // connecting to databse
     let db = new sqlite3.Database('chat.db', (err) => {
-      if (err) {
-        console.error(err.message);
-      }
+      if (err) { errorReply(res, err); }
     });
 
     let login = credentials['login'];
@@ -22,31 +70,19 @@ function register(req, res, body) {
 
     db.all('SELECT * FROM users WHERE login=(?) LIMIT 1', [login],
       (err, rows) => {
-        if (err) {
-          console.error(err.message);
-          res.statusCode = 500;  // Internal Server Error
-          res.end();
-        } else if (rows.length > 0) {
-          res.statusCode = 400;  // Bad Request
-          res.write('Username already taken.');
-          res.end();
+        if (err) { errorReply(res, err); }
+        else if (rows.length > 0) {
+          basicReply(res, 400, 'Username already taken.');  // Bad Request
         } else {
           db.run('INSERT INTO users(login, passwd) VALUES (?, ?)',
             [login, hash],
             (err) => {
-              if (err) {
-                console.error(err.message);
-                res.statusCode = 500;  // Internal Server Error
-                res.end();
-              } else {
+              if (err) { errorReply(res, err); }
+              else {
                 db.close((err) => {
-                  if (err) {
-                    console.error(err.message);
-                    res.statusCode = 500;  // Internal Server Error
-                    res.end();
-                  } else {
-                    res.statusCode = 201;  // Created
-                    res.end();
+                  if (err) { errorReply(res, err); }
+                  else {
+                    basicReply(res, 201);  // Created
                   }
                 });
               }
@@ -54,11 +90,8 @@ function register(req, res, body) {
         }
     });
   } else {
-    res.statusCode = 400;  // Bad Request
-    res.write('Missing login or password.');
-    res.end();
+    basicReply(res, 400, 'Missing login or password.');  // Bad Request
   }
-
 }
 
 
@@ -68,61 +101,33 @@ function requestToken(req, res, body) {
   if ('authorization' in headers) {
     // connecting to databse
     let db = new sqlite3.Database('chat.db', (err) => {
-      if (err) {
-        console.error(err.message);
-      }
+      if (err) { errorReply(res, err); }
     });
 
-    let basicAuthorization = headers['authorization'].split(' ')[1]
-    let credentials = new Buffer.from(basicAuthorization, 'base64')
-                                .toString()
-                                .split(':');
-    let login = credentials[0];
-    let hash = crypto.createHmac('sha256', credentials[1])
-                     .update(login)
-                     .digest('hex');
+    let { login, hash } = readLoginPasswordHash(req);
 
     db.all('SELECT * FROM users WHERE login=(?) AND passwd=(?)', [login, hash],
       (err, rows) => {
-        if (err) {
-          console.error(err.message);
-          res.statusCode = 500;
-          res.end();
-        } else {
+        if (err) { errorReply(res, err); }
+        else {
           if (rows.length == 0) {
-            res.statusCode = 403;
-            res.write('Invalid login or password.');
-            res.end();
+            basicReply(res, 403, 'Invalid login or password.');
           } else {
-
             // Token generation
-            //TODO: use int column to store new Date().getTime()
-            let client = req.connection.remoteAddress;
-            let agent = headers['user-agent'];
-            let salt_access = crypto.randomBytes(16).toString('hex');
-            let hash_access = crypto.createHmac('sha256', client + agent)
-                                    .update(salt_access)
-                                    .digest('hex');
-            let salt_refresh = crypto.randomBytes(16).toString('hex');
-            let hash_refresh = crypto.createHmac('sha256', client + agent)
-                                     .update(salt_refresh)
-                                     .digest('hex');
+            let access = generateToken(req);
+            let refresh = generateToken(req);
 
+            //TODO: use int column to store new Date().getTime()
             db.run('INSERT INTO tokens(type, hash, expires, username) '
               + 'VALUES (?, ?, ?, ?), (?, ?, ?, ?)',
-              ['access', hash_access, 3600, rows[0].login, 'refresh',
-              hash_refresh, 0, rows[0].login],
+              ['access', access.hash, 3600, rows[0].login, 'refresh',
+              refresh.hash, 0, rows[0].login],
               (err) => {
-
-                if (err) {
-                  console.error(err.message);
-                  res.statusCode = 500;
-                  res.end();
-
-                } else {
+                if (err) { errorReply(res, err); }
+                else {
                   let json = {
-                    'access_token': salt_access,
-                    'refresh_token': salt_refresh,
+                    'access_token': access.salt,
+                    'refresh_token': refresh.salt,
                     'expires_in': 3600
                   };
                   res.writeHead(200, {
@@ -135,52 +140,40 @@ function requestToken(req, res, body) {
 
           }
         }
-
     });
   } else {
-    res.statusCode = 401;
-    res.end();
+    basicReply(res, 401);  // Unauthorized
   }
 }
 
 
 function checkToken(req, res, callback) {
   const { headers, method, url } = req;
-  if ('authorization' in headers) {
 
+  if ('authorization' in headers) {
     let db = new sqlite3.Database('chat.db', (err) => {
-      if (err) {
-        console.error(err.message);
-      }
+      if (err) { errorReply(res, err); }
     });
-    let token = headers['authorization'].split(' ')[1];
-    let client = req.connection.remoteAddress;
-    let agent = headers['user-agent'];
-    let hash = crypto.createHmac('sha256', client + agent)
-                     .update(token)
-                     .digest('hex');
+
+    let hash = readTokenHash(req);
+
     db.all('SELECT * FROM tokens WHERE hash=(?)', [hash],
       (err, rows) => {
-        if (err) {
-          console.error(err.message);
-          res.statusCode = 500;
-          res.end();
-        } else {
+        if (err) { errorReply(res, err); }
+        else {
           let valid = rows.length > 0 && rows[0].type == 'access' &&
             (new Date().getTime() - new Date(rows[0].t).getTime()
             < 1000 * (rows[0].expires + 7200));
           if (valid) {
+            db.close();
             callback(rows[0].username);
           } else {
-            res.statusCode = 403;
-            res.write('Invalid token');
-            res.end();
+            basicReply(res, 403, 'Invalid token');  // Forbidden
           }
         }
     });
   } else {
-    res.statusCode = 401;
-    res.end();
+    basicReply(res, 401);  // Unauthorized
   }
 }
 
@@ -195,46 +188,27 @@ function validateToken(req, res, body) {
 
 function refreshToken(req, res, body) {
   const { headers, method, url } = req;
-  if ('authorization' in headers) {
 
+  if ('authorization' in headers) {
     let db = new sqlite3.Database('chat.db', (err) => {
-      if (err) {
-        console.error(err.message);
-      }
+      if (err) { errorReply(res, err); }
     });
-    let token = headers['authorization'].split(' ')[1];
-    let client = req.connection.remoteAddress;
-    let agent = headers['user-agent'];
-    let hash = crypto.createHmac('sha256', client + agent)
-                     .update(token)
-                     .digest('hex');
+
+    let hash = readTokenHash(req);
+
     db.all('SELECT * FROM tokens WHERE hash=(?)', [hash],
       (err, rows) => {
-        if (err) {
-          console.error(err.message);
-          res.statusCode = 500;
-          res.end();
-        } else {
-          let valid = rows.length > 0 && rows[0].type == 'refresh';
-          if (valid) {
+        if (err) { errorReply(res, err)}
+        else {
+          if (rows.length > 0 && rows[0].type == 'refresh') {
             // generate new token and delete old ones
             //TODO: delete old ones
-            let client = req.connection.remoteAddress;
-            let agent = headers['user-agent'];
-            let salt = crypto.randomBytes(16).toString('hex');
-            let hash = crypto.createHmac('sha256', client + agent)
-                             .update(salt)
-                             .digest('hex');
-
+            let { salt, hash } = generateToken(req);
             db.run('INSERT INTO tokens(type, hash, expires, username) '
               + 'VALUES (?, ?, ?, ?)',
               ['access', hash, 3600, rows[0].login],
               (err) => {
-                if (err) {
-                  console.error(err.message);
-                  res.statusCode = 500;
-                  res.end();
-                } else {
+                if (err) { errorReply(res, err); } else {
                   let json = {
                     'access_token': salt,
                     'expires_in': 3600
@@ -246,17 +220,13 @@ function refreshToken(req, res, body) {
                   res.end();
                 }
             });
-
           } else {
-            res.statusCode = 403;
-            res.write('Invalid token');
-            res.end();
+            basicReply(res, 403, 'Invalid token');  // Forbidden
           }
         }
     });
   } else {
-    res.statusCode = 401;
-    res.end();
+    basicReply(res, 401);  // Unauthorized
   }
 }
 
