@@ -243,4 +243,19 @@ function refreshToken(req, res, body) {
 }
 
 
-module.exports = {register, requestToken, validateToken, refreshToken};
+function logout(req, res, body) {
+  checkToken(req, res, (login) => {
+    let db = new sqlite3.Database('chat.db', (err) => {
+      if (err) { errorReply(res, err); }
+    });
+    db.run('DELETE FROM tokens WHERE username=(?)', [login], (err) => {
+      if (err) { errorReply(res, err); }
+      else {
+        basicReply(res, 200);
+      }
+    });
+  });
+}
+
+
+module.exports = {register, requestToken, validateToken, refreshToken, logout};

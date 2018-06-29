@@ -18,7 +18,8 @@ var routes = {
 
     '^/retrieve-token$': auth.requestToken,
     '^/validate-token$': auth.validateToken,
-    '^/refresh-token$': auth.refreshToken
+    '^/refresh-token$': auth.refreshToken,
+    '^/logout$': auth.logout
 
   },
   'POST': {
