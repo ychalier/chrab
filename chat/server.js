@@ -20,7 +20,8 @@ var routes = {
     '^/retrieve-token$': auth.requestToken,
     '^/validate-token$': auth.validateToken,
     '^/refresh-token$': auth.refreshToken,
-    '^/logout$': auth.logout
+    '^/logout$': auth.logout,
+    '^/channel/[\\w-]+$': channel.listMessages
 
   },
   'POST': {

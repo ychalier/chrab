@@ -75,4 +75,32 @@ function postMessage(req, res, body) {
   });
 }
 
-module.exports = {createChannel, postMessage};
+function listMessages(req, res, body) {
+  auth.checkToken(req, res, (login) => {
+    const { headers, method, url } = req;
+    const regex = /^\/channel\/([\w-]+)$/gm;
+    let channel = regex.exec(url)[1];
+    let db = new sqlite3.Database('chat.db', (err) => {
+      if (err) { errorReply(res, err); }
+    });
+    db.all('SELECT * FROM channels WHERE name=(?) LIMIT 1', [channel],
+      (err, rows) => {
+        if (err) { errorReply(res, err); }
+        else if (rows.length == 0) {
+          basicReply(res, 400, 'Channel does not exists.');
+        } else {
+          db.all('SELECT t, username, content FROM messages WHERE channel=(?) ORDER BY t',
+            [rows[0].id], (err, messages) => {
+              if (err) { errorReply(res, err); }
+              else {
+                res.statusCode = 200;
+                res.write(JSON.stringify(messages));
+                res.end();
+              }
+          });
+        }
+    });
+  });
+}
+
+module.exports = {createChannel, postMessage, listMessages};
