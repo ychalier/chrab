@@ -33,7 +33,7 @@ function generateToken(req) {
   let out = {};
   let client = req.connection.remoteAddress;
   let agent = req.headers['user-agent'];
-  out.salt = crypto.randomBytes(16).toString('hex');
+  out.salt = crypto.randomBytes(32).toString('hex');
   out.hash = crypto.createHmac('sha256', client + agent)
                    .update(out.salt)
                    .digest('hex');
@@ -116,18 +116,20 @@ function requestToken(req, res, body) {
             // Token generation
             let access = generateToken(req);
             let refresh = generateToken(req);
+            let now = new Date();
 
             //TODO: use int column to store new Date().getTime()
-            db.run('INSERT INTO tokens(type, hash, expires, username) '
-              + 'VALUES (?, ?, ?, ?), (?, ?, ?, ?)',
-              ['access', access.hash, 3600, rows[0].login, 'refresh',
-              refresh.hash, 0, rows[0].login],
+            db.run('INSERT INTO tokens(type, hash, expires, username, t) '
+              + 'VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)',
+              ['access', access.hash, 3600, rows[0].login, now.getTime(),
+              'refresh', refresh.hash, 0, rows[0].login, now.getTime()],
               (err) => {
                 if (err) { errorReply(res, err); }
                 else {
                   let json = {
                     'access_token': access.salt,
                     'refresh_token': refresh.salt,
+                    'delivered': now.toString(),
                     'expires_in': 3600
                   };
                   res.writeHead(200, {
@@ -162,8 +164,7 @@ function checkToken(req, res, callback) {
         if (err) { errorReply(res, err); }
         else {
           let valid = rows.length > 0 && rows[0].type == 'access' &&
-            (new Date().getTime() - new Date(rows[0].t).getTime()
-            < 1000 * (rows[0].expires + 7200));
+            (new Date().getTime() - rows[0].t < 1000 * (rows[0].expires));
           if (valid) {
             db.close();
             callback(rows[0].username);

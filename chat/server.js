@@ -86,7 +86,7 @@ function load_database() {
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, login TEXT, passwd TEXT)');
   db.run('CREATE TABLE IF NOT EXISTS tokens '
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, hash TEST, '
-    + 'expires INTEGER, username TEXT, t TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
+    + 'expires INTEGER, username TEXT, t INTEGER)');
   return db;
 }
 
