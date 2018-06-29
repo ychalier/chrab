@@ -105,4 +105,25 @@ function update() {
   }
 }
 
-setInterval(update, 1000);
+// setInterval(update, 1000);
+
+function ping() {
+  if (token != null && channel != null) {
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "/ping/" + channel, true);
+    xhttp.setRequestHeader('Authorization', 'Bearer ' + token['access_token']);
+    xhttp.onreadystatechange = function() {
+      if (xhttp.readyState == 4) {
+        if (xhttp.status == 200) {
+          update();
+          ping();
+        } else {
+          alert(xhttp.status);
+        }
+      }
+    }
+    xhttp.send();
+  } else {
+    alert('You need to log-in and join a channel!');
+  }
+}

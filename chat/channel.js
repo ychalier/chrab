@@ -125,4 +125,42 @@ function listChannels(req, res, body) {
   });
 }
 
-module.exports = {createChannel, postMessage, listMessages, listChannels};
+
+function ping(req, res, body) {
+  auth.checkToken(req, res, (login) => {
+    const { headers, method, url } = req;
+    const regex = /^\/ping\/([\w-]+)$/gm;
+    let channel = regex.exec(url)[1];
+    let db = new sqlite3.Database('chat.db', (err) => {
+      if (err) { errorReply(res, err); }
+    });
+    db.all('SELECT * FROM channels WHERE name=(?) LIMIT 1', [channel],
+      (err, rows) => {
+        if (err) { errorReply(res, err); }
+        else if (rows.length == 0) {
+          basicReply(res, 400, 'Channel does not exists.');
+        } else {
+          db.all('SELECT id FROM messages WHERE channel=(?)',
+            [rows[0].id], (err, messages) => {
+              if (err) { errorReply(res, err); }
+              else {
+                var nMessages = messages.length;
+                var interval = setInterval(function() {
+                  db.all('SELECT id FROM messages WHERE channel=(?)',
+                    [rows[0].id], (err, newMessages) => {
+                      if (newMessages.length > nMessages) {
+                        clearInterval(interval);
+                        basicReply(res, 200);
+                      }
+                    });
+                }, 1000);
+
+              }
+          });
+        }
+    });
+  });
+}
+
+
+module.exports = {createChannel, postMessage, listMessages, listChannels, ping};
