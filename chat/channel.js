@@ -93,7 +93,9 @@ function listMessages(req, res, body) {
             [rows[0].id], (err, messages) => {
               if (err) { errorReply(res, err); }
               else {
-                res.statusCode = 200;
+                res.writeHead(200, {
+                  'Content-Type': 'application/json'
+                });
                 res.write(JSON.stringify(messages));
                 res.end();
               }
@@ -113,7 +115,9 @@ function listChannels(req, res, body) {
       (err, rows) => {
         if (err) { errorReply(res, err); }
         else {
-          res.statusCode = 200;
+          res.writeHead(200, {
+            'Content-Type': 'application/json'
+          });
           res.write(JSON.stringify(rows));
           res.end();
         }
