@@ -24,7 +24,7 @@ var routes = {
     '^/refresh-token$': auth.refreshToken,
     '^/logout$': auth.logout,
     '^/channel/[\\w-]+$': channel.listMessages,
-    '^/channels': channel.listChannels,
+    '^/channels$': channel.listChannels,
     '^/webclient/': function (req, res, body) {
       const { headers, method, url } = req;
       let path = "";
