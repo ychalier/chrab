@@ -3,6 +3,9 @@ const crypto = require('crypto');
 
 
 function basicReply(res, statusCode, message='') {
+  /* Set the response status codes, writes a message if one is given, and
+     finally ends communication.
+   */
   res.statusCode = statusCode;
   res.write(message);
   res.end();
@@ -10,17 +13,29 @@ function basicReply(res, statusCode, message='') {
 
 
 function errorReply(res, err) {
+  /* Basic reply for a Internal Server Error. Prints the error in the log.
+   */
   console.error(err.message);
   basicReply(res, 500);  // Internal Server Error
 }
 
 
 function readLoginPasswordHash(req) {
+  /* Reads login and password from basic HTTP authorization and computes the
+     password hash that should match the one stored in database.
+     The field 'authorization' is supposed to be present.
+   */
   let out = {}
+
+  // String is 'Basic ds8787894', so we need to prune until the space
   let basicAuthorization = req.headers['authorization'].split(' ')[1]
+
+  // Reverse the base64 encoding
   let credentials = new Buffer.from(basicAuthorization, 'base64')
                               .toString()
                               .split(':');
+
+  // Computing hash
   out.login = credentials[0];
   out.hash = crypto.createHmac('sha256', credentials[1])
                    .update(credentials[0])
@@ -30,6 +45,9 @@ function readLoginPasswordHash(req) {
 
 
 function generateToken(req) {
+  /* Generates a token from a random 32 bytes salt and information from the
+     request. Tokens thus depends on client's IP and user-agent.
+   */
   let out = {};
   let client = req.connection.remoteAddress;
   let agent = req.headers['user-agent'];
@@ -42,6 +60,10 @@ function generateToken(req) {
 
 
 function readTokenHash(req) {
+  /* Reads token from Bearer HTTP authorization and computes the hash that
+     should match the one stored in database.
+     The field 'authorization' is supposed to be present.
+   */
   let token = req.headers['authorization'].split(' ')[1];
   let client = req.connection.remoteAddress;
   let agent = req.headers['user-agent'];
@@ -68,12 +90,13 @@ function register(req, res, body) {
                       .update(login)
                       .digest('hex');
 
+    // check if username is already in database
     db.all('SELECT * FROM users WHERE login=(?) LIMIT 1', [login],
       (err, rows) => {
         if (err) { errorReply(res, err); }
         else if (rows.length > 0) {
           basicReply(res, 400, 'Username already taken.');  // Bad Request
-        } else {
+        } else {  // this is a new user
           db.run('INSERT INTO users(login, passwd) VALUES (?, ?)',
             [login, hash],
             (err) => {
@@ -96,6 +119,10 @@ function register(req, res, body) {
 
 
 function requestToken(req, res, body) {
+  /* Generates an access token and a refresh token. The salt is sent to the
+     client. The hash of the salt, user-agent and remote address is stored in
+     database.
+   */
   const { headers, method, url } = req;
 
   if ('authorization' in headers) {
@@ -106,6 +133,7 @@ function requestToken(req, res, body) {
 
     let { login, hash } = readLoginPasswordHash(req);
 
+    // checking is login and password match
     db.all('SELECT * FROM users WHERE login=(?) AND passwd=(?)', [login, hash],
       (err, rows) => {
         if (err) { errorReply(res, err); }
@@ -113,15 +141,18 @@ function requestToken(req, res, body) {
           if (rows.length == 0) {
             basicReply(res, 403, 'Invalid login or password.');
           } else {
-            // Token generation
+            // token generation
             let access = generateToken(req);
             let refresh = generateToken(req);
             let now = new Date();
 
+            // delete previous tokens
             db.run('DELETE FROM tokens WHERE username=(?)', [rows[0].login],
             (err) => {
               if (err) { errorReply(res, err); }
               else {
+
+                // insert new ones
                 db.run('INSERT INTO tokens(type, hash, expires, username, t) '
                   + 'VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)',
                   ['access', access.hash, 3600, rows[0].login, now.getTime(),
@@ -129,6 +160,8 @@ function requestToken(req, res, body) {
                   (err) => {
                     if (err) { errorReply(res, err); }
                     else {
+
+                      // replying to the user
                       let json = {
                         'access_token': access.salt,
                         'refresh_token': refresh.salt,
