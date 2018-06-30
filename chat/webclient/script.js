@@ -5,22 +5,53 @@ document.getElementById('form-login-submit')
         .addEventListener('click', function(event) {
   event.preventDefault();
   let xhttp = new XMLHttpRequest();
-  let username =
-    document.querySelector('#form-login > input[type="text"]')
-            .value;
-  let password =
-    document.querySelector('#form-login > input[type="password"]')
-            .value;
+  let inputLogin = document.querySelector(
+    '#form-login > input[type="text"]');
+  let inputPasswd = document.querySelector(
+    '#form-login > input[type="password"]');
+  let username = inputLogin.value;
+  let password = inputPasswd.value;
+  inputLogin.value = "";
+  inputPasswd.value = "";
   let hash = btoa(username + ':' + password);
   xhttp.open("GET", "/retrieve-token", true);
   xhttp.setRequestHeader('Authorization', 'Basic ' + hash);
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4) {
       if (xhttp.status == 200) {
+        // stores token in global var
         token = JSON.parse(xhttp.responseText);
-        alert('Connected!');
+
+        // replaces form with a welcome message
+        let form = document.getElementById('form-login');
+        let newEl = document.createElement('p');
+        newEl.innerHTML = 'Hello <b>' + username + '</b>!';
+        form.parentNode.replaceChild(newEl, form);
+
+        // fetches channels
+        let xhttp2 = new XMLHttpRequest();
+        xhttp2.open("GET", "/channels", true);
+        xhttp2.setRequestHeader('Authorization',
+          'Bearer ' + token['access_token']);
+        xhttp2.onreadystatechange = function() {
+          if (xhttp2.readyState == 4) {
+            if (xhttp2.status == 200) {
+              let channels = JSON.parse(xhttp2.responseText);
+              let select = document.querySelector('select');
+              for (var i = 0; i < channels.length; i++) {
+                let option = document.createElement('option');
+                option.value = channels[i].name;
+                option.innerHTML = channels[i].name;
+                select.appendChild(option);
+              }
+            } else {
+              alert(xhttp2.status + '\n' + xhttp2.responseText);
+            }
+          }
+        }
+        xhttp2.send();
       } else {
-        alert(xhttp.status);
+        alert(xhttp.responseText);
       }
     }
   }
@@ -34,29 +65,10 @@ document.getElementById('form-channel-submit')
     let xhttp = new XMLHttpRequest();
     xhttp.open("GET", "/channels", true);
     xhttp.setRequestHeader('Authorization', 'Bearer ' + token['access_token']);
-    channel = document.querySelector('#form-channel > input').value;
-    xhttp.onreadystatechange = function() {
-      if (xhttp.readyState == 4) {
-        if (xhttp.status == 200) {
-          let channels = JSON.parse(xhttp.responseText);
-          let found = false;
-          for (var i = 0; i < channels.length; i++) {
-            if (channels[i].name == channel) {
-              found = true;
-              break;
-            }
-          }
-          if (!found) {
-            // channel = null;
-            document.querySelector('#form-channel > input').value = "";
-            alert('Channels does not exist!');
-          }
-        } else {
-          alert(xhttp.status);
-        }
-      }
-    }
-    xhttp.send();
+    let select = document.querySelector('#form-channel > select');
+    channel = select.options[select.selectedIndex].value;
+    update();
+    ping();
   } else {
     alert('You must log-in before.');
   }
