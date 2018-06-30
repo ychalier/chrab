@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const auth = require('./auth');
+const purl = require('url');
 
 
 var pings = {};
@@ -55,7 +56,8 @@ function postMessage(req, res, body) {
   auth.checkToken(req, res, (login) => {
     const { headers, method, url } = req;
     const regex = /^\/channel\/([\w-]+)$/gm;
-    let channel = regex.exec(url)[1];
+    let radix = url.split("?")[0];
+    let channel = regex.exec(radix)[1];
     let db = new sqlite3.Database('chat.db', (err) => {
       if (err) { errorReply(res, err); }
     });
@@ -91,7 +93,8 @@ function listMessages(req, res, body) {
   auth.checkToken(req, res, (login) => {
     const { headers, method, url } = req;
     const regex = /^\/channel\/([\w-]+)$/gm;
-    let channel = regex.exec(url)[1];
+    let radix = url.split("?")[0];
+    let channel = regex.exec(radix)[1];
     let db = new sqlite3.Database('chat.db', (err) => {
       if (err) { errorReply(res, err); }
     });
@@ -101,8 +104,14 @@ function listMessages(req, res, body) {
         else if (rows.length == 0) {
           basicReply(res, 400, 'Channel does not exists.');
         } else {
-          db.all('SELECT t, username, content FROM messages WHERE channel=(?) ORDER BY t',
-            [rows[0].id], (err, messages) => {
+          let query = purl.parse(url, true).query;
+          let timeLowerLimit = 0;
+          if ('limit' in query) {
+            timeLowerLimit = parseInt(query.limit);
+          }
+          db.all('SELECT t, username, content FROM messages '
+            +' WHERE channel=(?) AND t>(?) ORDER BY t',
+            [rows[0].id, timeLowerLimit], (err, messages) => {
               if (err) { errorReply(res, err); }
               else {
                 res.writeHead(200, {
@@ -143,7 +152,8 @@ function ping(req, res, body) {
   auth.checkToken(req, res, (login) => {
     const { headers, method, url } = req;
     const regex = /^\/ping\/([\w-]+)$/gm;
-    let channel = regex.exec(url)[1];
+    let radix = url.split("?")[0];
+    let channel = regex.exec(radix)[1];
     let db = new sqlite3.Database('chat.db', (err) => {
       if (err) { errorReply(res, err); }
     });
