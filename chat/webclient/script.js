@@ -1,5 +1,9 @@
 var token = null;
 var channel = null;
+var lastMessage = null;
+
+document.getElementById('form-channel').style.visibility = 'hidden';
+document.getElementById('form-post').style.visibility = 'hidden';
 
 document.getElementById('form-login-submit')
         .addEventListener('click', function(event) {
@@ -44,6 +48,8 @@ document.getElementById('form-login-submit')
                 option.innerHTML = channels[i].name;
                 select.appendChild(option);
               }
+              document.getElementById('form-channel').style.visibility =
+                'visible';
             } else {
               alert(xhttp2.status + '\n' + xhttp2.responseText);
             }
@@ -69,6 +75,7 @@ document.getElementById('form-channel-submit')
     channel = select.options[select.selectedIndex].value;
     update();
     ping();
+    document.getElementById('form-post').style.visibility = 'visible';
   } else {
     alert('You must log-in before.');
   }
@@ -96,18 +103,24 @@ document.getElementById('form-post-submit')
 function update() {
   if (token != null && channel != null) {
     let xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "/channel/" + channel, true);
+    let getParameters = "";
+    if (lastMessage != null) {
+      getParameters += "?limit=" + (lastMessage + 1);
+    }
+    xhttp.open("GET", "/channel/" + channel + getParameters, true);
     xhttp.setRequestHeader('Authorization', 'Bearer ' + token['access_token']);
     xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4) {
         if (xhttp.status == 200) {
           let messages = JSON.parse(xhttp.responseText);
-          let string = "";
+          let chat = document.getElementById('chat');
           for (var i = 0; i < messages.length; i++) {
-            string += "<b>&lt;" + messages[i].username + "&gt;</b> "
-                      + messages[i].content + "<br>";
+            let message = document.createElement('p');
+            message.innerHTML = "<b>&lt;" + messages[i].username + "&gt;</b> "
+              + messages[i].content + "<br>";
+            lastMessage = messages[i].t;
+            chat.appendChild(message);
           }
-          document.getElementById('chat').innerHTML = string;
         } else {
           alert(xhttp.status);
         }
