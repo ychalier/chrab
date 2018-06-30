@@ -4,6 +4,9 @@ var lastMessage = null;
 
 document.getElementById('form-channel').style.visibility = 'hidden';
 document.getElementById('form-post').style.visibility = 'hidden';
+document.getElementById('form-create-channel').style.visibility = 'hidden';
+document.querySelector('h2:nth-of-type(1)').style.visibility = 'hidden';
+document.querySelector('h2:nth-of-type(2)').style.visibility = 'hidden';
 
 document.getElementById('form-login-submit')
         .addEventListener('click', function(event) {
@@ -32,30 +35,7 @@ document.getElementById('form-login-submit')
         newEl.innerHTML = 'Hello <b>' + username + '</b>!';
         form.parentNode.replaceChild(newEl, form);
 
-        // fetches channels
-        let xhttp2 = new XMLHttpRequest();
-        xhttp2.open("GET", "/channels", true);
-        xhttp2.setRequestHeader('Authorization',
-          'Bearer ' + token['access_token']);
-        xhttp2.onreadystatechange = function() {
-          if (xhttp2.readyState == 4) {
-            if (xhttp2.status == 200) {
-              let channels = JSON.parse(xhttp2.responseText);
-              let select = document.querySelector('select');
-              for (var i = 0; i < channels.length; i++) {
-                let option = document.createElement('option');
-                option.value = channels[i].name;
-                option.innerHTML = channels[i].name;
-                select.appendChild(option);
-              }
-              document.getElementById('form-channel').style.visibility =
-                'visible';
-            } else {
-              alert(xhttp2.status + '\n' + xhttp2.responseText);
-            }
-          }
-        }
-        xhttp2.send();
+        fetchChannels();
       } else {
         alert(xhttp.responseText);
       }
@@ -63,6 +43,40 @@ document.getElementById('form-login-submit')
   }
   xhttp.send();
 });
+
+function fetchChannels() {
+  // fetches channels
+  let xhttp = new XMLHttpRequest();
+  xhttp.open("GET", "/channels", true);
+  xhttp.setRequestHeader('Authorization',
+    'Bearer ' + token['access_token']);
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4) {
+      if (xhttp.status == 200) {
+        let channels = JSON.parse(xhttp.responseText);
+        let select = document.querySelector('select');
+        select.innerHTML = "";
+        for (var i = 0; i < channels.length; i++) {
+          let option = document.createElement('option');
+          option.value = channels[i].name;
+          option.innerHTML = channels[i].name;
+          select.appendChild(option);
+        }
+        document.getElementById('form-channel').style.visibility =
+          'visible';
+        document.getElementById('form-create-channel').style.visibility =
+          'visible';
+        document.querySelector('h2:nth-of-type(1)').style.visibility =
+          'visible';
+        document.querySelector('h2:nth-of-type(2)').style.visibility =
+          'visible';
+      } else {
+        alert(xhttp.status + '\n' + xhttp.responseText);
+      }
+    }
+  }
+  xhttp.send();
+}
 
 document.getElementById('form-channel-submit')
         .addEventListener('click', function(event) {
@@ -80,7 +94,6 @@ document.getElementById('form-channel-submit')
     alert('You must log-in before.');
   }
 });
-
 document.getElementById('form-post-submit')
         .addEventListener('click', function(event) {
   event.preventDefault();
@@ -130,7 +143,31 @@ function update() {
   }
 }
 
-// setInterval(update, 1000);
+document.getElementById('form-create-channel-submit').addEventListener('click',
+function(event) {
+  event.preventDefault();
+  if (token != null) {
+    let channelInput = document.querySelector('#form-create-channel > input');
+    let channel = channelInput.value;
+    channelInput.value = "";
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('POST', '/create-channel', true);
+    xhttp.setRequestHeader('Authorization', 'Bearer ' + token['access_token']);
+    xhttp.onreadystatechange = function() {
+      if (xhttp.readyState == 4) {
+        if (xhttp.status == 201) {
+          alert('Successfully created!');
+          fetchChannels();
+        } else {
+          alert(xhttp.status + '\n' + xhttp.responseText);
+        }
+      }
+    }
+    xhttp.send(channel);
+  } else {
+    alert('You must log-in before!');
+  }
+});
 
 function ping() {
   if (token != null && channel != null) {
