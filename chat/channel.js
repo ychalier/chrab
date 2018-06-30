@@ -2,6 +2,9 @@ const sqlite3 = require('sqlite3').verbose();
 const auth = require('./auth');
 
 
+var pings = {};
+
+
 function basicReply(res, statusCode, message='') {
   /* Set the response status codes, writes a message if one is given, and
      finally ends communication.
@@ -47,6 +50,7 @@ function createChannel(req, res, body) {
   });
 }
 
+
 function postMessage(req, res, body) {
   auth.checkToken(req, res, (login) => {
     const { headers, method, url } = req;
@@ -67,6 +71,13 @@ function postMessage(req, res, body) {
             (err) => {
               if (err) { errorReply(res, err); }
               else {
+                // notifiy all users
+                if (channel in pings) {
+                  for (player in pings[channel]) {
+                    basicReply(pings[channel][player], 200);
+                  }
+                  delete pings[channel];
+                }
                 basicReply(res, 201);
               }
           });
@@ -74,6 +85,7 @@ function postMessage(req, res, body) {
     });
   });
 }
+
 
 function listMessages(req, res, body) {
   auth.checkToken(req, res, (login) => {
@@ -104,6 +116,7 @@ function listMessages(req, res, body) {
     });
   });
 }
+
 
 function listChannels(req, res, body) {
   auth.checkToken(req, res, (login) => {
@@ -140,23 +153,10 @@ function ping(req, res, body) {
         else if (rows.length == 0) {
           basicReply(res, 400, 'Channel does not exists.');
         } else {
-          db.all('SELECT id FROM messages WHERE channel=(?)',
-            [rows[0].id], (err, messages) => {
-              if (err) { errorReply(res, err); }
-              else {
-                var nMessages = messages.length;
-                var interval = setInterval(function() {
-                  db.all('SELECT id FROM messages WHERE channel=(?)',
-                    [rows[0].id], (err, newMessages) => {
-                      if (newMessages.length > nMessages) {
-                        clearInterval(interval);
-                        basicReply(res, 200);
-                      }
-                    });
-                }, 1000);
-
-              }
-          });
+          if (!(channel in pings)) {
+            pings[channel] = {};
+          }
+          pings[channel][login] = res;
         }
     });
   });
