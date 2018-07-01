@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>chrab</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+  #chat {
+    max-height: 50vh;
+    overflow: scroll;
+  }
+  </style>
+
+</head>
+
+<body>
+  <h1>chrab</h1>
+
+  <form id="form-login">
+    <p>
+      <i>If you do not have an account, please register
+        <a href="register.html">here</a>.
+      </i>
+    </p>
+    <input type="text" placeholder="username" />
+    <input type="password" placeholder="password" />
+    <button id="form-login-submit">login</button>
+  </form>
+
+  <form id="form-logout" class="show-on-login">
+    <p>
+      Logged in as <b><span id="username"></span></b>  
+      <button id="form-logout-submit">logout</button>
+    </p>
+  </form>
+
+  <h2 class="show-on-login">create a channel</h2>
+  <form id="form-create-channel" class="show-on-login">
+    <input type="text" placeholder="channel name" />
+    <button id="form-create-channel-submit">create</button>
+  </form>
+
+  <h2 class="show-on-login">join a channel</h2>
+  <form id="form-channel" class="show-on-login">
+    <select></select>
+    <button id="form-channel-submit">join</button>
+
+  </form>
+
+  <hr class="show-on-join" />
+  <div id="chat" class="show-on-join"></div>
+  <hr class="show-on-join" />
+
+  <form id="form-post" class="show-on-join">
+    <input type="text" size="40" placeholder="type your message" />
+    <button id="form-post-submit">send</button>
+  </form>
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>

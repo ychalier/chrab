@@ -1,3 +1,6 @@
+# sqlite3 Database
+*.db
+
 # Logs
 logs
 *.log
