@@ -48,6 +48,17 @@ function sendRequest(method, url, headers, callbacks, body='') {
     if (xhttp.readyState == 4) {
       if (xhttp.status in callbacks) {
         callbacks[xhttp.status](xhttp.responseText);
+      } else if (xhttp.status == 403) {  // Unauthorized access: we refresh the
+        if ('Authorization' in headers   // token and retry the request
+            && headers['Authorization'].startsWith('Bearer')) {
+          refresh(() => {
+            headers['Authorization'] = 'Bearer ' + token['access_token'];
+            let xhttp = sendRequest(method, url, headers, callbacks, body);
+            if (url.startsWith('/ping/')) {
+              currentPing = xhttp;
+            }
+          });
+        }
       } else {
         console.error(xhttp.status + '\t' + xhttp.responseText);
         alert(xhttp.status + '\t' + xhttp.responseText);
@@ -102,6 +113,40 @@ function logout() {
       alert('Successfully logged out!');
     }
   });
+}
+
+function refresh(callback) {
+  /* Token refreshing procedure; callback is used to retry the request that was
+     unauthorized.
+   */
+  if ('refresh_token' in token) {
+    sendRequest('GET', '/refresh-token',
+                {'Authorization': 'Bearer ' + token['refresh_token']}, {
+    200: (response) => {
+      let newToken = JSON.parse(response);
+      for (var newValue in newToken) {
+        token[newValue] = newToken[newValue];
+      }
+      callback();
+    },
+    403 : (response) => {  // token is just invalid, need to re-log
+      alert('Invalid token. Need to re-log!');
+      // resetting elements' visibility
+      setVisibility('.show-on-login, .show-on-join', 'hidden');
+      document.getElementById('form-login').style.display = "block";
+      // resetting all global variables
+      token = null;
+      if (currentPing) {
+        currentPing.onreadystatechange = function() {};
+      }
+      currentPing = null;
+      lastMessage = 0;
+      channel = null;
+    }
+  });
+  } else {
+    console.error('Trying to refresh but no refresh token found.');
+  }
 }
 
 function fetchChannels() {

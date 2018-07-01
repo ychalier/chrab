@@ -1,6 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const crypto = require('crypto');
 
+var expires = 3600;
 
 function basicReply(res, statusCode, message='') {
   /* Set the response status codes, writes a message if one is given, and
@@ -155,7 +156,7 @@ function requestToken(req, res, body) {
                 // insert new ones
                 db.run('INSERT INTO tokens(type, hash, expires, username, t) '
                   + 'VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)',
-                  ['access', access.hash, 3600, rows[0].login, now.getTime(),
+                  ['access', access.hash, expires, rows[0].login, now.getTime(),
                   'refresh', refresh.hash, 0, rows[0].login, now.getTime()],
                   (err) => {
                     if (err) { errorReply(res, err); }
@@ -166,7 +167,7 @@ function requestToken(req, res, body) {
                         'access_token': access.salt,
                         'refresh_token': refresh.salt,
                         'delivered': now.toString(),
-                        'expires_in': 3600
+                        'expires_in': expires
                       };
                       res.writeHead(200, {
                         'Content-Type': 'application/json'
@@ -248,13 +249,13 @@ function refreshToken(req, res, body) {
                 else {
                   db.run('INSERT INTO tokens(type, hash, expires, username, t)'
                     + ' VALUES (?, ?, ?, ?, ?)',
-                    ['access', hash, 3600, rows[0].username, now.getTime()],
+                    ['access', hash, expires, rows[0].username, now.getTime()],
                     (err) => {
                       if (err) { errorReply(res, err); } else {
                         let json = {
                           'access_token': salt,
                           'delivered': now.toString(),
-                          'expires_in': 3600
+                          'expires_in': expires
                         };
                         res.writeHead(200, {
                           'Content-Type': 'application/json'
