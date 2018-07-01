@@ -84,6 +84,26 @@ function login(username, password) {
   });
 }
 
+function logout() {
+  /* Logout procedure
+   */
+  sendRequest('GET', '/logout', bearerAuthorization(), {
+    200: (response) => {
+      // resetting elements' visibility
+      setVisibility('.show-on-login, .show-on-join', 'hidden');
+      document.getElementById('form-login').style.display = "block";
+      // resetting all global variables
+      if (currentPing) {
+        currentPing.onreadystatechange = function() {};
+      }
+      currentPing = null;
+      lastMessage = 0;
+      channel = null;
+      alert('Successfully logged out!');
+    }
+  });
+}
+
 function fetchChannels() {
   /* Channel list update procedure
    */
@@ -234,6 +254,13 @@ document.getElementById('form-post-submit')
   event.preventDefault();
   sendMessage(document.querySelector('#form-post > input').value);
   document.querySelector('#form-post > input').value = "";
+});
+
+// linking logout procedure to #form-logout
+document.getElementById('form-logout-submit')
+        .addEventListener('click', function(event) {
+  event.preventDefault();
+  logout();
 });
 
 setVisibility('.show-on-login, .show-on-join', 'hidden');
