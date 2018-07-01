@@ -125,6 +125,11 @@ document.getElementById('form-post-submit')
 });
 
 
+function htmlEscape(string) {
+  return string.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+
 function update() {
   if (token != null && channel != null) {
     let xhttp = new XMLHttpRequest();
@@ -141,8 +146,9 @@ function update() {
           let chat = document.getElementById('chat');
           for (var i = 0; i < messages.length; i++) {
             let message = document.createElement('p');
-            message.innerHTML = "<b>&lt;" + messages[i].username + "&gt;</b> "
-              + messages[i].content + "<br>";
+            message.innerHTML = "<b>&lt;" + htmlEscape(messages[i].username)
+                              + "&gt;</b> " + htmlEscape(messages[i].content)
+                              + "<br>";
             lastMessage = messages[i].t;
             chat.appendChild(message);
             chat.scrollTop = chat.scrollHeight;
