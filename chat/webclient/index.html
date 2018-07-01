@@ -5,6 +5,9 @@
 <head>
   <title>chrab</title>
 
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
   #chat {
     max-height: 50vh;
@@ -15,38 +18,45 @@
 </head>
 
 <body>
-  <h1>chrab</h1>  
+  <h1>chrab</h1>
 
   <form id="form-login">
     <p>
-      <i>If you do not have an account, please register <a href="register.html">here</a>.</i>
+      <i>If you do not have an account, please register
+        <a href="register.html">here</a>.
+      </i>
     </p>
-    <input type="text" name="login" placeholder="login" />
-    <input type="password" name="passwd" placeholder="password" />
-    <button id="form-login-submit">submit</button>
+    <input type="text" placeholder="username" />
+    <input type="password" placeholder="password" />
+    <button id="form-login-submit">login</button>
   </form>
 
-  <h2>create a channel</h2>
-  <form id="form-create-channel">
-    <input type="text" name="name" placeholder="channel name" />
-    <button id="form-create-channel-submit">send</button>
+  <form id="form-logout" class="show-on-login">
+    <p>
+      Logged in as <b><span id="username"></span></b>  
+      <button id="form-logout-submit">logout</button>
+    </p>
   </form>
 
-  <h2>join a channel</h2>
+  <h2 class="show-on-login">create a channel</h2>
+  <form id="form-create-channel" class="show-on-login">
+    <input type="text" placeholder="channel name" />
+    <button id="form-create-channel-submit">create</button>
+  </form>
 
-  <form id="form-channel">
-    <select name="channel"></select>
+  <h2 class="show-on-login">join a channel</h2>
+  <form id="form-channel" class="show-on-login">
+    <select></select>
     <button id="form-channel-submit">join</button>
-    <hr />
+
   </form>
 
-  <div id="chat">
+  <hr class="show-on-join" />
+  <div id="chat" class="show-on-join"></div>
+  <hr class="show-on-join" />
 
-  </div>
-
-  <form id="form-post">
-    <hr />
-    <input type="text" name="content" placeholder="type your message" />
+  <form id="form-post" class="show-on-join">
+    <input type="text" size="40" placeholder="type your message" />
     <button id="form-post-submit">send</button>
   </form>
 

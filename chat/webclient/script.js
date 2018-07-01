@@ -3,11 +3,16 @@ var channel = null;
 var lastMessage = null;
 var currentPing = null;
 
-document.getElementById('form-channel').style.visibility = 'hidden';
-document.getElementById('form-post').style.visibility = 'hidden';
-document.getElementById('form-create-channel').style.visibility = 'hidden';
-document.querySelector('h2:nth-of-type(1)').style.visibility = 'hidden';
-document.querySelector('h2:nth-of-type(2)').style.visibility = 'hidden';
+
+function setVisibility(query, state) {
+  let list = document.querySelectorAll(query);
+  for (var i = 0; i < list.length; i++) {
+    list[i].style.visibility = state;
+  }
+}
+
+
+setVisibility('.show-on-login, .show-on-join', 'hidden');
 
 
 document.getElementById('form-login-submit')
@@ -30,13 +35,7 @@ document.getElementById('form-login-submit')
       if (xhttp.status == 200) {
         // stores token in global var
         token = JSON.parse(xhttp.responseText);
-
-        // replaces form with a welcome message
-        let form = document.getElementById('form-login');
-        let newEl = document.createElement('p');
-        newEl.innerHTML = 'Hello <b>' + username + '</b>!';
-        form.parentNode.replaceChild(newEl, form);
-
+        document.getElementById('username').innerHTML = htmlEscape(username);
         fetchChannels();
       } else {
         alert(xhttp.responseText);
@@ -65,14 +64,8 @@ function fetchChannels() {
           option.innerHTML = channels[i].name;
           select.appendChild(option);
         }
-        document.getElementById('form-channel').style.visibility =
-          'visible';
-        document.getElementById('form-create-channel').style.visibility =
-          'visible';
-        document.querySelector('h2:nth-of-type(1)').style.visibility =
-          'visible';
-        document.querySelector('h2:nth-of-type(2)').style.visibility =
-          'visible';
+        setVisibility('.show-on-login', 'visible');
+        document.getElementById('form-login').innerHTML = "";
       } else {
         alert(xhttp.status + '\n' + xhttp.responseText);
       }
@@ -98,7 +91,7 @@ document.getElementById('form-channel-submit')
     lastMessage = 0;
     update();
     ping();
-    document.getElementById('form-post').style.visibility = 'visible';
+    setVisibility('.show-on-join', 'visible');
   } else {
     alert('You must log-in before.');
   }
