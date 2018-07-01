@@ -1,12 +1,14 @@
 var token = null;
 var channel = null;
 var lastMessage = null;
+var currentPing = null;
 
 document.getElementById('form-channel').style.visibility = 'hidden';
 document.getElementById('form-post').style.visibility = 'hidden';
 document.getElementById('form-create-channel').style.visibility = 'hidden';
 document.querySelector('h2:nth-of-type(1)').style.visibility = 'hidden';
 document.querySelector('h2:nth-of-type(2)').style.visibility = 'hidden';
+
 
 document.getElementById('form-login-submit')
         .addEventListener('click', function(event) {
@@ -44,6 +46,7 @@ document.getElementById('form-login-submit')
   xhttp.send();
 });
 
+
 function fetchChannels() {
   // fetches channels
   let xhttp = new XMLHttpRequest();
@@ -78,6 +81,7 @@ function fetchChannels() {
   xhttp.send();
 }
 
+
 document.getElementById('form-channel-submit')
         .addEventListener('click', function(event) {
   event.preventDefault();
@@ -87,6 +91,11 @@ document.getElementById('form-channel-submit')
     xhttp.setRequestHeader('Authorization', 'Bearer ' + token['access_token']);
     let select = document.querySelector('#form-channel > select');
     channel = select.options[select.selectedIndex].value;
+    document.getElementById('chat').innerHTML = "";
+    if (currentPing != null) {
+      currentPing.onreadystatechange = function () {};
+    }
+    lastMessage = 0;
     update();
     ping();
     document.getElementById('form-post').style.visibility = 'visible';
@@ -94,6 +103,8 @@ document.getElementById('form-channel-submit')
     alert('You must log-in before.');
   }
 });
+
+
 document.getElementById('form-post-submit')
         .addEventListener('click', function(event) {
   event.preventDefault();
@@ -112,6 +123,7 @@ document.getElementById('form-post-submit')
     alert('You must log-in and select a channel before!');
   }
 });
+
 
 function update() {
   if (token != null && channel != null) {
@@ -133,6 +145,7 @@ function update() {
               + messages[i].content + "<br>";
             lastMessage = messages[i].t;
             chat.appendChild(message);
+            chat.scrollTop = chat.scrollHeight;
           }
         } else {
           alert(xhttp.status);
@@ -142,6 +155,7 @@ function update() {
     xhttp.send();
   }
 }
+
 
 document.getElementById('form-create-channel-submit').addEventListener('click',
 function(event) {
@@ -169,6 +183,7 @@ function(event) {
   }
 });
 
+
 function ping() {
   if (token != null && channel != null) {
     let xhttp = new XMLHttpRequest();
@@ -186,6 +201,7 @@ function ping() {
         }
       }
     }
+    currentPing = xhttp;
     xhttp.send();
   } else {
     alert('You need to log-in and join a channel!');

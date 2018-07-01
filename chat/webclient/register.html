@@ -36,6 +36,7 @@
       if (xhttp.readyState == 4) {
         if (xhttp.status == 201) {
           alert('Successfully registered!');
+          window.location.href = '/webclient/';
         } else {
           alert(xhttp.status + '\n' + xhttp.responseText);
         }

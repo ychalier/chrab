@@ -4,29 +4,26 @@
 
 <head>
   <title>chrab</title>
+
+  <style>
+  #chat {
+    max-height: 50vh;
+    overflow: scroll;
+  }
+  </style>
+
 </head>
 
 <body>
   <h1>chrab</h1>
 
   <form id="form-login">
+    <p>
+      <i>If you do not have an account, please register <a href="register.html">here</a>.</i>
+    </p>
     <input type="text" name="login" placeholder="login" />
     <input type="password" name="passwd" placeholder="password" />
     <button id="form-login-submit">submit</button>
-  </form>
-
-  <h2>join a channel</h2>
-
-  <form id="form-channel">
-    <select name="channel"></select>
-    <button id="form-channel-submit">join</button>
-  </form>
-  <div id="chat">
-
-  </div>
-  <form id="form-post">
-    <input type="text" name="content" placeholder="type your message" />
-    <button id="form-post-submit">send</button>
   </form>
 
   <h2>create a channel</h2>
@@ -35,7 +32,26 @@
     <button id="form-create-channel-submit">send</button>
   </form>
 
+  <h2>join a channel</h2>
+
+  <form id="form-channel">
+    <select name="channel"></select>
+    <button id="form-channel-submit">join</button>
+    <hr />
+  </form>
+
+  <div id="chat">
+
+  </div>
+
+  <form id="form-post">
+    <hr />
+    <input type="text" name="content" placeholder="type your message" />
+    <button id="form-post-submit">send</button>
+  </form>
+
   <script src="script.js"></script>
+
 </body>
 
 </html>
