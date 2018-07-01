@@ -179,8 +179,10 @@ function ping() {
         if (xhttp.status == 200) {
           update();
           ping();
+        } else if (xhttp.status == 0) {
+          ping();
         } else {
-          alert(xhttp.status);
+          alert(xhttp.status + '\n' + xhttp.responseText);
         }
       }
     }
