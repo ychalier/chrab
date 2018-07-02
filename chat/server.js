@@ -6,7 +6,7 @@ const mime = require('mime-types');
 const channel = require('./channel');
 const auth = require('./auth');
 
-var port = 80;
+var port = 8000;
 
 var routes = {
   'GET': {
