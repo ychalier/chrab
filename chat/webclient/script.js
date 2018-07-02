@@ -3,6 +3,17 @@ var channel = null;  // string with channel name that was joined
 var lastMessage = null;  // int timestamp of last fetched message
 var currentPing = null;  // XMLHttpRequest object of last ping request
 
+function deleteAllCookies() {
+    var cookies = document.cookie.split(";");
+
+    for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        var eqPos = cookie.indexOf("=");
+        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
+}
+
 function setVisibility(query, state) {
   /* Alter the 'visible' CSS property of a set of elements given by a selector.
    * This function mimics jQuery utilities.
@@ -90,6 +101,9 @@ function login(username, password) {
       // setting up username in the span of #form-logout
       document.getElementById('username').innerHTML = htmlEscape(username);
       // collecting channels and setting up #form-channel
+      document.cookie = "username=" + username;
+      document.cookie = "access=" + token['access_token'];
+      document.cookie = "refresh=" + token['refresh_token'];
       fetchChannels();
     }
   });
@@ -110,6 +124,7 @@ function logout() {
       currentPing = null;
       lastMessage = 0;
       channel = null;
+      deleteAllCookies();
       alert('Successfully logged out!');
     }
   });
@@ -127,6 +142,7 @@ function refresh(callback) {
       for (var newValue in newToken) {
         token[newValue] = newToken[newValue];
       }
+      document.cookie = "access=" + token['access_token'];
       callback();
     },
     403 : (response) => {  // token is just invalid, need to re-log
@@ -309,3 +325,22 @@ document.getElementById('form-logout-submit')
 });
 
 setVisibility('.show-on-login, .show-on-join', 'hidden');
+if (document.cookie) {
+  let tmp = document.cookie.split(';');
+  let cookies = {}
+  for (var i = 0; i < tmp.length; i++) {
+    let tmp2 = tmp[i].replace(/ /g, '').split('=');
+    cookies[tmp2[0]] = tmp2[1];
+  }
+  if ('username' in cookies && 'access' in cookies && 'refresh' in cookies) {
+    token = {
+      'access_token': cookies['access'],
+      'refresh_token': cookies['refresh']
+    }
+    document.getElementById('username').innerHTML =
+      htmlEscape(cookies['username']);
+    setVisibility('.show-on-login', 'visible');
+    document.getElementById('form-login').style.display = "none";
+    fetchChannels();
+  }
+}
