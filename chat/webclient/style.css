@@ -53,6 +53,24 @@ h1 {
   background-color: var(--light-primary);
 }
 
+.msg {
+  padding: 2px 8px 2px 8px;
+}
+
+.msg:last-child {
+  padding-bottom: 10px;
+}
+
+.user {
+  padding-right: 8px;
+  color: var(--primary-text);
+  font-size: 80%;
+}
+
+.content {
+  color: var(--secondary-text);
+}
+
 hr {
   margin: 0;
   height: 2px;

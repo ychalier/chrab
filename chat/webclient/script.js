@@ -1,5 +1,6 @@
 var token = null;  // JSON with access_token and refresh_token
 var channel = null;  // string with channel name that was joined
+var username_ = null;  // string with user's login when logged in
 var lastMessage = null;  // int timestamp of last fetched message
 var currentPing = null;  // XMLHttpRequest object of last ping request
 
@@ -98,6 +99,7 @@ function login(username, password) {
     200: (response) => {
       // storing token in global variable
       token = JSON.parse(response);
+      username_ = username;
       // setting up username in the span of #form-logout
       document.getElementById('username').innerHTML = htmlEscape(username);
       // collecting channels and setting up #form-channel
@@ -246,10 +248,19 @@ function update() {
         let chat = document.getElementById('chat');
         // adding messages to the chat (only appending, as there are new ones)
         for (var i = 0; i < messages.length; i++) {
-          let message = document.createElement('p');
-          message.innerHTML = "<b>&lt;" + htmlEscape(messages[i].username)
-                            + "&gt;</b> " + htmlEscape(messages[i].content)
-                            + "<br>";
+          let message = document.createElement('div');
+          message.className = "msg";
+          if (messages[i].username == username_) {
+            message.className = message.className + " own";
+          }
+          let user = document.createElement('span');
+          user.innerHTML = htmlEscape(messages[i].username);
+          user.className = "user";
+          let content = document.createElement('span');
+          content.innerHTML = htmlEscape(messages[i].content);
+          content.className = "content";
+          message.appendChild(user);
+          message.appendChild(content);
           chat.appendChild(message);
           chat.scrollTop = chat.scrollHeight;  // scrolling to the bottom
           lastMessage = messages[i].t;  // remembering the last timestamp (posts
@@ -337,6 +348,7 @@ if (document.cookie) {
       'access_token': cookies['access'],
       'refresh_token': cookies['refresh']
     }
+    username_ = cookies['username'];
     document.getElementById('username').innerHTML =
       htmlEscape(cookies['username']);
     setVisibility('.show-on-login', 'visible');
