@@ -1,0 +1,261 @@
+@font-face {
+    font-family: Lato;
+    src: url(lato_regular.ttf);
+}
+
+* {
+  font-family: Lato;
+  --dark-primary: #b71c1c; /*#D32F2F;*/
+  --light-primary: #ffebee; /*#FFCDD2;*/
+  --primary: #F44336;
+  --text-icons: #FFFFFF;
+  --accent: #9E9E9E;
+  --primary-text: #212121;
+  --secondary-text: #757575;
+  --divider: #BDBDBD;
+}
+
+
+html {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--dark-primary);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#wrapper {
+  height: 90vh;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 10px 10px 0 white;
+  background-color: var(--primary);
+}
+
+h1 {
+  text-align: center;
+  letter-spacing: 20px;
+  font-weight: lighter;
+  color: var(--primary-text);
+}
+
+#chat {
+  width: 100%;
+  height: 81.4vh;
+  background-color: var(--light-primary);
+}
+
+.msg {
+  padding: 2px 8px 2px 8px;
+}
+
+.msg:last-child {
+  padding-bottom: 10px;
+}
+
+.msg.own {
+  text-align: right;
+}
+
+.msg.own > .user {
+  display: none;
+}
+
+.time {
+  font-size: 70%;
+  font-style: oblique;
+  opacity: .9;
+  padding-right: 8px;
+}
+
+.user {
+  padding-right: 8px;
+  color: var(--primary-text);
+  font-size: 80%;
+}
+
+.content {
+  color: var(--secondary-text);
+}
+
+hr {
+  margin: 0;
+  height: 2px;
+  border: none;
+  display: block;
+  background-color: var(--divider);
+}
+
+#form-post {
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+
+}
+
+#form-post > input {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background-color: var(--light-primary);
+}
+
+#form-post > button {
+  border: none;
+  padding: 0 12px 0 12px;
+  transition: .1s linear;
+  color: var(--text-icons);
+  background-color: var(--primary);
+}
+
+#form-post > button:hover {
+  cursor: pointer;
+  background-color: var(--dark-primary);
+}
+
+#sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#sidebar > div{
+  background-color: var(--light-primary);
+  box-shadow: 10px 10px 0 white;
+  display: inline-block;
+}
+
+#sidebar > div > form {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#sidebar > div > form > *:first-child, #sidebar > div > form > input {
+  width: 150px;
+  border: none;
+  background-color: none;
+  padding: 0 8px 0 8px;
+}
+
+#sidebar > div > form > input:nth-of-type(2) {
+  border-left: 1px solid var(--divider);
+}
+
+#panel > p {
+  font-size: 70%;
+}
+
+#sidebar > div > form > select:first-child {
+  padding: 0;
+  margin: 0 8px 0 8px;
+}
+
+#sidebar > div > form > button {
+  border: none;
+  padding: 12px;
+  width: 62px;
+  transition: .1s linear;
+  color: var(--text-icons);
+  background-color: var(--primary);
+}
+
+#sidebar > div > form > button:hover {
+  cursor: pointer;
+  background-color: var(--dark-primary);
+}
+
+#form-logout > b {
+  line-height: 40px;
+  text-align: center;
+}
+
+@media(max-width:925px){
+
+  body {
+    flex-direction: column;
+  }
+
+  #wrapper {
+    height: 75vh;
+  }
+
+  #wrapper, #sidebar {
+    margin: auto;
+    width: 500px;
+  }
+
+  #sidebar > div > form > input:first-child, #sidebar > div > form > input{
+    width: 100%;
+    border: none;
+    padding: 0 8px 0 8px;
+    line-height: 29px;
+  }
+
+  #sidebar > div > form > select:first-child {
+    width: 70%;
+  }
+
+  #sidebar > div > form > button {
+    border: none;
+    padding: 8px;
+    width: 51.64px;
+    transition: .1s linear;
+    color: var(--text-icons);
+    background-color: var(--primary);
+  }
+
+  #sidebar > div > #form-login > button {
+    width: 61.64px;
+  }
+
+}
+
+@media(max-width:550px){
+
+  #wrapper, #sidebar {
+    width: 90vw;
+  }
+
+}
+
+/*
+@media(max-width:490px){
+  #sidebar > div > form > select:first-child {
+    width: 89%;
+  }
+}
+
+@media(max-width:450px){
+  #sidebar > div > form > select:first-child {
+    width: 88%;
+  }
+}
+
+@media(max-width:430px){
+  #sidebar > div > form > select:first-child {
+    width: 87%;
+  }
+}
+
+@media(max-width:405px){
+  #sidebar > div > form > select:first-child {
+    width: 86%;
+  }
+}
+
+@media(max-width:370px){
+  #sidebar > div > form > select:first-child {
+    width: 85%;
+  }
+}
+*/

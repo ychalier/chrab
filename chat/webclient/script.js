@@ -1,5 +1,6 @@
 var token = null;  // JSON with access_token and refresh_token
 var channel = null;  // string with channel name that was joined
+var username_ = null;  // string with user's login when logged in
 var lastMessage = null;  // int timestamp of last fetched message
 var currentPing = null;  // XMLHttpRequest object of last ping request
 
@@ -14,13 +15,40 @@ function deleteAllCookies() {
     }
 }
 
-function setVisibility(query, state) {
+function setDisplay(query, state) {
   /* Alter the 'visible' CSS property of a set of elements given by a selector.
    * This function mimics jQuery utilities.
    */
   let list = document.querySelectorAll(query);
   for (var i = 0; i < list.length; i++) {
-    list[i].style.visibility = state;
+    list[i].style.display = state;
+  }
+}
+
+function timeToString(time) {
+  time = parseInt(time / 1000);
+  let now = parseInt(new Date().getTime() / 1000);
+  let dif = now - time;
+  if (dif < 60) {
+    return dif + "s";
+  } else if (dif < 3600) {
+    return parseInt(dif / 60) + "m";
+  } else if (dif < 24 * 3600) {
+    return parseInt(dif / 3600) + "h";
+  } else {
+    return parseInt(dif / (24 * 3600)) + "j";
+  }
+}
+
+function displayTimes() {
+  let list = document.querySelectorAll('.time');
+  let times = new Set([]);
+  for (var i = list.length - 1; i >= 0; i--) {
+    let timeStr = timeToString(parseInt(list[i].getAttribute('time')));
+    if (timeStr && !times.has(timeStr)) {
+      list[i].innerHTML = timeStr;
+    }
+    times.add(timeStr);
   }
 }
 
@@ -98,6 +126,7 @@ function login(username, password) {
     200: (response) => {
       // storing token in global variable
       token = JSON.parse(response);
+      username_ = username;
       // setting up username in the span of #form-logout
       document.getElementById('username').innerHTML = htmlEscape(username);
       // collecting channels and setting up #form-channel
@@ -115,12 +144,13 @@ function logout() {
   sendRequest('GET', '/logout', bearerAuthorization(), {
     200: (response) => {
       // resetting elements' visibility
-      setVisibility('.show-on-login, .show-on-join', 'hidden');
-      document.getElementById('form-login').style.display = "block";
+      setDisplay('.show-on-login', 'none');
+      setDisplay('.hide-on-login', 'flex');
       // resetting all global variables
       if (currentPing) {
         currentPing.onreadystatechange = function() {};
       }
+      document.getElementById('chat').innerHTML = "";
       currentPing = null;
       lastMessage = 0;
       channel = null;
@@ -148,8 +178,8 @@ function refresh(callback) {
     403 : (response) => {  // token is just invalid, need to re-log
       alert('Invalid token. Need to re-log!');
       // resetting elements' visibility
-      setVisibility('.show-on-login, .show-on-join', 'hidden');
-      document.getElementById('form-login').style.display = "block";
+      setDisplay('.show-on-login', 'none');
+      setDisplay('.hide-on-login', 'flex');
       // resetting all global variables
       token = null;
       if (currentPing) {
@@ -179,8 +209,8 @@ function fetchChannels() {
         option.innerHTML = channels[i].name;
         select.appendChild(option);
       }
-      setVisibility('.show-on-login', 'visible');
-      document.getElementById('form-login').style.display = "none";
+      setDisplay('.show-on-login', 'flex');
+      setDisplay('.hide-on-login', 'none');
     }
   });
 }
@@ -199,7 +229,7 @@ function joinChannel(selectedChannel) {
   lastMessage = 0;  // resetting the last message so we get all of them at first
   update();
   ping();
-  setVisibility('.show-on-join', 'visible');
+  // setDisplay('.show-on-join', 'inline-block');
 }
 
 function createChannel(selectedChannel) {
@@ -246,14 +276,28 @@ function update() {
         let chat = document.getElementById('chat');
         // adding messages to the chat (only appending, as there are new ones)
         for (var i = 0; i < messages.length; i++) {
-          let message = document.createElement('p');
-          message.innerHTML = "<b>&lt;" + htmlEscape(messages[i].username)
-                            + "&gt;</b> " + htmlEscape(messages[i].content)
-                            + "<br>";
+          let message = document.createElement('div');
+          message.className = "msg";
+          if (messages[i].username == username_) {
+            message.className = message.className + " own";
+          }
+          let user = document.createElement('span');
+          user.innerHTML = htmlEscape(messages[i].username);
+          user.className = "user";
+          let time = document.createElement('span');
+          time.setAttribute("time", messages[i].t);
+          time.className = "time";
+          let content = document.createElement('span');
+          content.innerHTML = htmlEscape(messages[i].content);
+          content.className = "content";
+          message.appendChild(user);
+          message.append(time);
+          message.appendChild(content);
           chat.appendChild(message);
           chat.scrollTop = chat.scrollHeight;  // scrolling to the bottom
           lastMessage = messages[i].t;  // remembering the last timestamp (posts
         }                               // from severs are already ordered)
+        displayTimes();
       }
     });
   } else {
@@ -324,7 +368,10 @@ document.getElementById('form-logout-submit')
   logout();
 });
 
-setVisibility('.show-on-login, .show-on-join', 'hidden');
+setInterval(displayTimes, 10 * 1000);
+
+setDisplay('.show-on-login', 'none');
+
 if (document.cookie) {
   let tmp = document.cookie.split(';');
   let cookies = {}
@@ -337,10 +384,11 @@ if (document.cookie) {
       'access_token': cookies['access'],
       'refresh_token': cookies['refresh']
     }
+    username_ = cookies['username'];
     document.getElementById('username').innerHTML =
       htmlEscape(cookies['username']);
-    setVisibility('.show-on-login', 'visible');
-    document.getElementById('form-login').style.display = "none";
+    setDisplay('.show-on-login', 'flex');
+    setDisplay('.hide-on-login', 'none');
     fetchChannels();
   }
 }
