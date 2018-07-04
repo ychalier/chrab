@@ -17,7 +17,7 @@
 
 
 html {
-  height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -59,6 +59,14 @@ h1 {
 
 .msg:last-child {
   padding-bottom: 10px;
+}
+
+.msg.own {
+  text-align: right;
+}
+
+.msg.own > .user {
+  display: none;
 }
 
 .user {
@@ -152,4 +160,80 @@ hr {
 #form-logout > b {
   line-height: 40px;
   text-align: center;
+}
+
+@media(max-width:760px){
+
+  body {
+    flex-direction: column;
+  }
+
+  #wrapper {
+    height: 75vh;
+  }
+
+  #wrapper, #sidebar {
+    margin: auto;
+    width: 500px;
+  }
+
+  #sidebar > div > form > *:first-child {
+    width: 100%;
+    border: none;
+    background-color: none;
+    padding: 0 8px 0 8px;
+    line-height: 29px;
+  }
+
+  #sidebar > div > form > select:first-child {
+    width: 90%;
+  }
+
+  #sidebar > div > form > *:last-child {
+    border: none;
+    padding: 8px;
+    width: 51.64px;
+    transition: .1s linear;
+    color: var(--text-icons);
+    background-color: var(--primary);
+  }
+
+}
+
+@media(max-width:550px){
+
+  #wrapper, #sidebar {
+    width: 90vw;
+  }
+
+}
+
+@media(max-width:490px){
+  #sidebar > div > form > select:first-child {
+    width: 89%;
+  }
+}
+
+@media(max-width:450px){
+  #sidebar > div > form > select:first-child {
+    width: 88%;
+  }
+}
+
+@media(max-width:430px){
+  #sidebar > div > form > select:first-child {
+    width: 87%;
+  }
+}
+
+@media(max-width:405px){
+  #sidebar > div > form > select:first-child {
+    width: 86%;
+  }
+}
+
+@media(max-width:370px){
+  #sidebar > div > form > select:first-child {
+    width: 85%;
+  }
 }
