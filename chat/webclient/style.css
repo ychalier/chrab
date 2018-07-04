@@ -69,6 +69,13 @@ h1 {
   display: none;
 }
 
+.time {
+  font-size: 70%;
+  font-style: oblique;
+  opacity: .9;
+  padding-right: 8px;
+}
+
 .user {
   padding-right: 8px;
   color: var(--primary-text);

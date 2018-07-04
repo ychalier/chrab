@@ -25,6 +25,33 @@ function setDisplay(query, state) {
   }
 }
 
+function timeToString(time) {
+  time = parseInt(time / 1000);
+  let now = parseInt(new Date().getTime() / 1000);
+  let dif = now - time;
+  if (dif < 60) {
+    return dif + "s";
+  } else if (dif < 3600) {
+    return parseInt(dif / 60) + "m";
+  } else if (dif < 24 * 3600) {
+    return parseInt(dif / 3600) + "h";
+  } else {
+    return parseInt(dif / (24 * 3600)) + "j";
+  }
+}
+
+function displayTimes() {
+  let list = document.querySelectorAll('.time');
+  let times = new Set([]);
+  for (var i = list.length - 1; i >= 0; i--) {
+    let timeStr = timeToString(parseInt(list[i].getAttribute('time')));
+    if (timeStr && !times.has(timeStr)) {
+      list[i].innerHTML = timeStr;
+    }
+    times.add(timeStr);
+  }
+}
+
 function basicAuthorization(username, password) {
   /* Returns headers for a basic HTTP authentication
    */
@@ -123,6 +150,7 @@ function logout() {
       if (currentPing) {
         currentPing.onreadystatechange = function() {};
       }
+      document.getElementById('chat').innerHTML = "";
       currentPing = null;
       lastMessage = 0;
       channel = null;
@@ -256,15 +284,20 @@ function update() {
           let user = document.createElement('span');
           user.innerHTML = htmlEscape(messages[i].username);
           user.className = "user";
+          let time = document.createElement('span');
+          time.setAttribute("time", messages[i].t);
+          time.className = "time";
           let content = document.createElement('span');
           content.innerHTML = htmlEscape(messages[i].content);
           content.className = "content";
           message.appendChild(user);
+          message.append(time);
           message.appendChild(content);
           chat.appendChild(message);
           chat.scrollTop = chat.scrollHeight;  // scrolling to the bottom
           lastMessage = messages[i].t;  // remembering the last timestamp (posts
         }                               // from severs are already ordered)
+        displayTimes();
       }
     });
   } else {
@@ -335,6 +368,8 @@ document.getElementById('form-logout-submit')
   logout();
 });
 
+setInterval(displayTimes, 10 * 1000);
+
 setDisplay('.show-on-login', 'none');
 
 if (document.cookie) {
@@ -354,7 +389,6 @@ if (document.cookie) {
       htmlEscape(cookies['username']);
     setDisplay('.show-on-login', 'flex');
     setDisplay('.hide-on-login', 'none');
-    console.log(cookies);
     fetchChannels();
   }
 }
