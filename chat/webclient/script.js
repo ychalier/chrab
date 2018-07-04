@@ -15,13 +15,13 @@ function deleteAllCookies() {
     }
 }
 
-function setVisibility(query, state) {
+function setDisplay(query, state) {
   /* Alter the 'visible' CSS property of a set of elements given by a selector.
    * This function mimics jQuery utilities.
    */
   let list = document.querySelectorAll(query);
   for (var i = 0; i < list.length; i++) {
-    list[i].style.visibility = state;
+    list[i].style.display = state;
   }
 }
 
@@ -117,8 +117,8 @@ function logout() {
   sendRequest('GET', '/logout', bearerAuthorization(), {
     200: (response) => {
       // resetting elements' visibility
-      setVisibility('.show-on-login, .show-on-join', 'hidden');
-      document.getElementById('form-login').style.display = "block";
+      setDisplay('.show-on-login', 'none');
+      setDisplay('.hide-on-login', 'flex');
       // resetting all global variables
       if (currentPing) {
         currentPing.onreadystatechange = function() {};
@@ -150,8 +150,8 @@ function refresh(callback) {
     403 : (response) => {  // token is just invalid, need to re-log
       alert('Invalid token. Need to re-log!');
       // resetting elements' visibility
-      setVisibility('.show-on-login, .show-on-join', 'hidden');
-      document.getElementById('form-login').style.display = "block";
+      setDisplay('.show-on-login', 'none');
+      setDisplay('.hide-on-login', 'flex');
       // resetting all global variables
       token = null;
       if (currentPing) {
@@ -181,8 +181,8 @@ function fetchChannels() {
         option.innerHTML = channels[i].name;
         select.appendChild(option);
       }
-      setVisibility('.show-on-login', 'visible');
-      document.getElementById('form-login').style.display = "none";
+      setDisplay('.show-on-login', 'flex');
+      setDisplay('.hide-on-login', 'none');
     }
   });
 }
@@ -201,7 +201,7 @@ function joinChannel(selectedChannel) {
   lastMessage = 0;  // resetting the last message so we get all of them at first
   update();
   ping();
-  setVisibility('.show-on-join', 'visible');
+  // setDisplay('.show-on-join', 'inline-block');
 }
 
 function createChannel(selectedChannel) {
@@ -335,7 +335,8 @@ document.getElementById('form-logout-submit')
   logout();
 });
 
-setVisibility('.show-on-login, .show-on-join', 'hidden');
+setDisplay('.show-on-login', 'none');
+
 if (document.cookie) {
   let tmp = document.cookie.split(';');
   let cookies = {}
@@ -351,8 +352,9 @@ if (document.cookie) {
     username_ = cookies['username'];
     document.getElementById('username').innerHTML =
       htmlEscape(cookies['username']);
-    setVisibility('.show-on-login', 'visible');
-    document.getElementById('form-login').style.display = "none";
+    setDisplay('.show-on-login', 'flex');
+    setDisplay('.hide-on-login', 'none');
+    console.log(cookies);
     fetchChannels();
   }
 }

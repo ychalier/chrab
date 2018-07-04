@@ -130,20 +130,30 @@ hr {
   width: 100%;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
 }
 
-#sidebar > div > form > *:first-child {
+#sidebar > div > form > *:first-child, #sidebar > div > form > input {
   width: 150px;
   border: none;
   background-color: none;
   padding: 0 8px 0 8px;
 }
 
-#sidebar > div > form > select:first-child {
-  width: 166px;
+#sidebar > div > form > input:nth-of-type(2) {
+  border-left: 1px solid var(--divider);
 }
 
-#sidebar > div > form > *:last-child {
+#panel > p {
+  font-size: 70%;
+}
+
+#sidebar > div > form > select:first-child {
+  padding: 0;
+  margin: 0 8px 0 8px;
+}
+
+#sidebar > div > form > button {
   border: none;
   padding: 12px;
   width: 62px;
@@ -152,7 +162,7 @@ hr {
   background-color: var(--primary);
 }
 
-#sidebar > div > form > *:last-child:hover {
+#sidebar > div > form > button:hover {
   cursor: pointer;
   background-color: var(--dark-primary);
 }
@@ -162,7 +172,7 @@ hr {
   text-align: center;
 }
 
-@media(max-width:760px){
+@media(max-width:925px){
 
   body {
     flex-direction: column;
@@ -177,25 +187,28 @@ hr {
     width: 500px;
   }
 
-  #sidebar > div > form > *:first-child {
+  #sidebar > div > form > input:first-child, #sidebar > div > form > input{
     width: 100%;
     border: none;
-    background-color: none;
     padding: 0 8px 0 8px;
     line-height: 29px;
   }
 
   #sidebar > div > form > select:first-child {
-    width: 90%;
+    width: 70%;
   }
 
-  #sidebar > div > form > *:last-child {
+  #sidebar > div > form > button {
     border: none;
     padding: 8px;
     width: 51.64px;
     transition: .1s linear;
     color: var(--text-icons);
     background-color: var(--primary);
+  }
+
+  #sidebar > div > #form-login > button {
+    width: 61.64px;
   }
 
 }
@@ -208,6 +221,7 @@ hr {
 
 }
 
+/*
 @media(max-width:490px){
   #sidebar > div > form > select:first-child {
     width: 89%;
@@ -237,3 +251,4 @@ hr {
     width: 85%;
   }
 }
+*/

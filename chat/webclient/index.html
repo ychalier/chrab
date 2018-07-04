@@ -42,19 +42,20 @@
 
     <div id="panel">
 
-      <form id="form-login">
-        <p>
-          <i>If you do not have an account, please register
-            <a href="register.html">here</a>.
-          </i>
-        </p>
+      <form id="form-login" class="hide-on-login">
         <input type="text" placeholder="username" />
         <input type="password" placeholder="password" />
         <button id="form-login-submit">login</button>
       </form>
 
+      <p class="hide-on-login" style="text-align: center;">
+        <i>If you do not have an account, please register
+          <a href="register.html">here</a>.
+        </i>
+      </p>
+
       <form id="form-channel" class="show-on-login">
-        <select></select>
+        <select style="background:none"></select>
         <button id="form-channel-submit">join</button>
       </form>
 
