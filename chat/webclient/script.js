@@ -3,6 +3,8 @@ var channel = null;  // string with channel name that was joined
 var username_ = null;  // string with user's login when logged in
 var lastMessage = null;  // int timestamp of last fetched message
 var currentPing = null;  // XMLHttpRequest object of last ping request
+var notificationInterval = null;
+var isActive = null;
 
 function deleteAllCookies() {
     var cookies = document.cookie.split(";");
@@ -314,6 +316,7 @@ function ping() {
       200: (response) => {  // a new message has been posted, so we update and
         update();           // re-send a ping for the next message(s)
         ping();
+        notify();
       },
       0: (response) => {    // the server has timed-out (2mins), no new message,
         ping();             // so we re-send a ping.
@@ -323,6 +326,62 @@ function ping() {
     console.error('Trying to ping while no channel is joined!');
   }
 }
+
+function blink() {
+  document.title = "*new message*";
+  setTimeout(function() {
+    document.title = "chrab";
+  }, 1000);
+}
+
+function setAttributes(element, attributes) {
+  for (a in attributes) {
+    element.setAttribute(a, attributes[a]);
+  }
+}
+
+function playSound(filename, playerDivId) {
+  let container = document.getElementById(playerDivId);
+  container.innerHTML = "";
+  let player = document.createElement('audio');
+  player.setAttribute('autoplay', 'autoplay');
+  let source = document.createElement('source');
+  setAttributes(source, {
+    'src': filename,
+    'type': 'audio/mpeg'
+  });
+  player.appendChild(source);
+  let embed = document.createElement('embed');
+  setAttributes(embed, {
+    'hidden': 'true',
+    'autostart': 'true',
+    'loop': 'false',
+    'src': filename
+  });
+  player.appendChild(embed);
+  container.appendChild(player);
+}
+
+function notify() {
+  if (!isActive) {
+    playSound('ahbus.mp3', 'audio')
+    blink();
+    notificationInterval = setInterval(blink, 2100);
+  }
+}
+
+window.addEventListener('focus', function() {
+  isActive = true;
+  if (notificationInterval) {
+    clearInterval(notificationInterval);
+    notificationInterval = null;
+    document.title = "chrab";
+  }
+});
+
+window.addEventListener('blur', function() {
+  isActive = false;
+});
 
 // linking login procedure to #form-login
 document.getElementById('form-login-submit')
