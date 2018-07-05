@@ -45,10 +45,10 @@ function timeToString(time) {
 function displayTimes() {
   let list = document.querySelectorAll('.time');
   let times = new Set([]);
-  for (var i = list.length - 1; i >= 0; i--) {
+  for (var i = 0; i < list.length; i++) {
     let timeStr = timeToString(parseInt(list[i].getAttribute('time')));
     if (timeStr && !times.has(timeStr)) {
-      list[i].innerHTML = timeStr;
+      list[i].innerHTML = "•" + timeStr + "•";
     }
     times.add(timeStr);
   }
