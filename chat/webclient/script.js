@@ -392,9 +392,9 @@ if (typeof document.hidden !== "undefined") {
 
 function handleVisibilityChange() {
   if (document[hidden]) {
-    active = false;
+    isActive = false;
   } else {
-    active = true;
+    isActive = true;
     if (notificationInterval) {
       clearInterval(notificationInterval);
       notificationInterval = null;
