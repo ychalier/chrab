@@ -4,7 +4,7 @@ var username_ = null;  // string with user's login when logged in
 var lastMessage = null;  // int timestamp of last fetched message
 var currentPing = null;  // XMLHttpRequest object of last ping request
 var notificationInterval = null;
-var isActive = null;
+var isActive = true;
 
 var catchedEvent = null;
 
@@ -378,18 +378,32 @@ function notify() {
   }
 }
 
-window.addEventListener('focus', function() {
-  isActive = true;
-  if (notificationInterval) {
-    clearInterval(notificationInterval);
-    notificationInterval = null;
-    document.title = "chrab";
-  }
-});
+var hidden, visibilityChange;
+if (typeof document.hidden !== "undefined") {
+  hidden = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
 
-window.addEventListener('blur', function() {
-  isActive = false;
-});
+function handleVisibilityChange() {
+  if (document[hidden]) {
+    active = false;
+  } else {
+    active = true;
+    if (notificationInterval) {
+      clearInterval(notificationInterval);
+      notificationInterval = null;
+      document.title = "chrab";
+    }
+  }
+}
+
+document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
 // linking login procedure to #form-login
 document.getElementById('form-login-submit')
