@@ -119,13 +119,17 @@ Returns a list of available channels, in a JSON:
 
     [
       {
-        "name": "default"
+        "name": "default",
+		"delay": 86400
       },
       {
-        "name": "general"
+        "name": "general",
+		"delay": 86400
       }
     ]
 
+The delay is the number of *seconds* before messages get completely removed from the database. By default, this value is set to 24 hours.
+	
 ---
 
     GET /channel/{channel-name}&limit={timestamp}
