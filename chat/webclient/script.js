@@ -6,6 +6,8 @@ var currentPing = null;  // XMLHttpRequest object of last ping request
 var notificationInterval = null;
 var isActive = null;
 
+var catchedEvent = null;
+
 function deleteAllCookies() {
     var cookies = document.cookie.split(";");
 
@@ -310,16 +312,22 @@ function update() {
 function ping() {
   /* Ping procedure
    */
+  var callTime = new Date().getTime();
   if (channel) {
-    let xhttp = new XMLHttpRequest();
     currentPing = sendRequest('GET', '/ping/'+channel, bearerAuthorization(), {
       200: (response) => {  // a new message has been posted, so we update and
         update();           // re-send a ping for the next message(s)
         ping();
         notify();
       },
-      0: (response) => {    // the server has timed-out (2mins), no new message,
-        ping();             // so we re-send a ping.
+      0: (response) => {  // connection was interrupted
+        let timeBeforeError = (new Date().getTime() - callTime) / 1000;
+        // here we try to detect if the server timed out; as it should take
+        // about 2 minutes (120s), we check a window of 3 seconds around that
+        // value (120 +- 3 seconds).
+        if (Math.abs(timeBeforeError - 120) < 3) {  // server timed out
+          ping();
+        }
       }
     });
   } else {
