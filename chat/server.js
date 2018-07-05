@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const mime = require('mime-types');
 
+const tasks = require('./background');
 const channel = require('./channel');
 const auth = require('./auth');
 
@@ -117,7 +118,7 @@ function load_database() {
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, hash TEST, '
     + 'expires INTEGER, username TEXT, t INTEGER)');
   db.run('CREATE TABLE IF NOT EXISTS channels '
-    + '(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)');
+    + '(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, delay INT)');
   db.run('CREATE TABLE IF NOT EXISTS messages '
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, channel INTEGER, '
     + 'username TEXT, t INTEGER)');

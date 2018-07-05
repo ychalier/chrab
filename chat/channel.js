@@ -4,6 +4,7 @@ const purl = require('url');
 
 
 var pings = {};
+var defaultChannelDelay = 24 * 3600; // in seconds
 
 
 function basicReply(res, statusCode, message='') {
@@ -39,8 +40,8 @@ function createChannel(req, res, body) {
         } else if (!regex.exec(body)){
           basicReply(res, 400, 'Invalid channel name.');
         } else {
-          db.run('INSERT INTO channels(name) VALUES (?)', [body],
-            (err) => {
+          db.run('INSERT INTO channels(name, delay) VALUES (?, ?)',
+          [body, defaultChannelDelay], (err) => {
               if (err) { errorReply(res, err); }
               else {
                 basicReply(res, 201);
@@ -48,6 +49,8 @@ function createChannel(req, res, body) {
           });
         }
     });
+
+    db.close();
   });
 }
 
@@ -85,6 +88,7 @@ function postMessage(req, res, body) {
           });
         }
     });
+    db.close();
   });
 }
 
@@ -123,6 +127,7 @@ function listMessages(req, res, body) {
           });
         }
     });
+    db.close();
   });
 }
 
@@ -144,6 +149,7 @@ function listChannels(req, res, body) {
           res.end();
         }
     });
+    db.close();
   });
 }
 
@@ -169,6 +175,7 @@ function ping(req, res, body) {
           pings[channel][login] = res;
         }
     });
+    db.close();
   });
 }
 
