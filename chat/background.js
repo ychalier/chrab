@@ -20,12 +20,25 @@ function clearOldMessages() {
   db.close();
 }
 
+function clearOldTokens() {
+  let db = new sqlite3.Database('chat.db', (err) => {
+    if (err) { console.error(err); }
+  });
+  let now = new Date().getTime();
+  db.run('DELETE FROM tokens WHERE type="access" '
+          + 'AND t < (?) - (expires * 1000)', [now]);
+  db.close();
+}
+
 var refresh_rate = 1 * 60 * 1000;  // 1 minute
 var scheduler_state = 0;
 var tasks = [
   {
     'modulo': 10,
     'method': clearOldMessages
+  }, {
+    'modulo': 5,
+    'method': clearOldTokens
   }
 ]
 
