@@ -3,6 +3,10 @@ var channel = null;  // string with channel name that was joined
 var username_ = null;  // string with user's login when logged in
 var lastMessage = null;  // int timestamp of last fetched message
 var currentPing = null;  // XMLHttpRequest object of last ping request
+var notificationInterval = null;
+var isActive = true;
+
+var catchedEvent = null;
 
 function deleteAllCookies() {
     var cookies = document.cookie.split(";");
@@ -43,10 +47,10 @@ function timeToString(time) {
 function displayTimes() {
   let list = document.querySelectorAll('.time');
   let times = new Set([]);
-  for (var i = list.length - 1; i >= 0; i--) {
+  for (var i = 0; i < list.length; i++) {
     let timeStr = timeToString(parseInt(list[i].getAttribute('time')));
     if (timeStr && !times.has(timeStr)) {
-      list[i].innerHTML = timeStr;
+      list[i].innerHTML = "•" + timeStr + "•";
     }
     times.add(timeStr);
   }
@@ -308,21 +312,98 @@ function update() {
 function ping() {
   /* Ping procedure
    */
+  var callTime = new Date().getTime();
   if (channel) {
-    let xhttp = new XMLHttpRequest();
     currentPing = sendRequest('GET', '/ping/'+channel, bearerAuthorization(), {
       200: (response) => {  // a new message has been posted, so we update and
         update();           // re-send a ping for the next message(s)
         ping();
+        notify();
       },
-      0: (response) => {    // the server has timed-out (2mins), no new message,
-        ping();             // so we re-send a ping.
+      0: (response) => {  // connection was interrupted
+        let timeBeforeError = (new Date().getTime() - callTime) / 1000;
+        // here we try to detect if the server timed out; as it should take
+        // about 2 minutes (120s), we check a window of 3 seconds around that
+        // value (120 +- 3 seconds).
+        if (Math.abs(timeBeforeError - 120) < 3) {  // server timed out
+          ping();
+        }
       }
     });
   } else {
     console.error('Trying to ping while no channel is joined!');
   }
 }
+
+function blink() {
+  document.title = "*new message*";
+  setTimeout(function() {
+    document.title = "chrab";
+  }, 1000);
+}
+
+function setAttributes(element, attributes) {
+  for (a in attributes) {
+    element.setAttribute(a, attributes[a]);
+  }
+}
+
+function playSound(filename, playerDivId) {
+  let container = document.getElementById(playerDivId);
+  container.innerHTML = "";
+  let player = document.createElement('audio');
+  player.setAttribute('autoplay', 'autoplay');
+  let source = document.createElement('source');
+  setAttributes(source, {
+    'src': filename,
+    'type': 'audio/mpeg'
+  });
+  player.appendChild(source);
+  let embed = document.createElement('embed');
+  setAttributes(embed, {
+    'hidden': 'true',
+    'autostart': 'true',
+    'loop': 'false',
+    'src': filename
+  });
+  player.appendChild(embed);
+  container.appendChild(player);
+}
+
+function notify() {
+  if (!isActive) {
+    playSound('ahbus.mp3', 'audio')
+    blink();
+    notificationInterval = setInterval(blink, 2100);
+  }
+}
+
+var hidden, visibilityChange;
+if (typeof document.hidden !== "undefined") {
+  hidden = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
+
+function handleVisibilityChange() {
+  if (document[hidden]) {
+    isActive = false;
+  } else {
+    isActive = true;
+    if (notificationInterval) {
+      clearInterval(notificationInterval);
+      notificationInterval = null;
+      document.title = "chrab";
+    }
+  }
+}
+
+document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
 // linking login procedure to #form-login
 document.getElementById('form-login-submit')
