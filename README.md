@@ -23,7 +23,35 @@ And then add the following line to the document:
 
     1 * * * * /home/pi/sraberry.date.sh
 
-The server then starts at boot, as a service (`chrab.service`). To access the logs, use the command:
+To make the server as a service, first make sure the following line is at the top of server.js:
+
+    #!/usr/bin/env node
+
+Then make server.js executable:
+
+    chmod +x server.js
+
+Then create/edit the file /etc/systemd/system/chrab.service:
+
+    [Unit]
+    Description=Chrab Server
+    
+    [Service]
+    PIDFile=/tmp/chrab-99.pid
+    Restart=always
+    KillSignal=SIGQUIT
+    WorkingDirectory=/home/pi/sraberry/chat/
+    ExecStart=/home/pi/sraberry/chat/server.js
+    
+    [Install]
+    WantedBy=multi-user.target
+
+Finally enable the service and start it:
+
+    sudo systemctl enable chrab.service
+    sudo systemctl start chrab.service
+
+The server then starts at boot, as a service. To access the logs, use the command:
 
     sudo journalctl -fu chrab.service
 
