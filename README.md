@@ -23,15 +23,46 @@ And then add the following line to the document:
 
     1 * * * * /home/pi/sraberry.date.sh
 
-Then, we need to make it so the **server starts at boot**. Server start is achieved by the
-script [start.sh](start.sh), so we just edit the rc.local:
+To make the server as a service, first make sure the following line is at the top of server.js:
 
-    sudo nano /etc/rc.local
+    #!/usr/bin/env node
 
-And add this line at the beginning:
+Then make server.js executable:
 
-    /home/pi/sraberry/start.sh
+    chmod +x server.js
 
-Finally, as the process is detached, we can connect its ouput using [output.sh](output.sh).
-Basically, this script just retrieve the PID of the main process executing the server,
-and then tails its output (which is redirected to /tmp/log in the starting command).
+Then create/edit the file /etc/systemd/system/chrab.service:
+
+    [Unit]
+    Description=Chrab Server
+    
+    [Service]
+    PIDFile=/tmp/chrab-99.pid
+    Restart=always
+    KillSignal=SIGQUIT
+    WorkingDirectory=/home/pi/sraberry/chat/
+    ExecStart=/home/pi/sraberry/chat/server.js
+    
+    [Install]
+    WantedBy=multi-user.target
+
+Finally enable the service and start it:
+
+    sudo systemctl enable chrab.service
+    sudo systemctl start chrab.service
+
+The server then starts at boot, as a service. To access the logs, use the command:
+
+    sudo journalctl -fu chrab.service
+
+### SSL Certificates
+
+Command to generate a key and a self-signed certificate:
+
+    openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+
+This only works for debugging and development. Do not used in production. Instead, create a certificate request with the following command:
+
+    openssl req -newkey rsa:2048 -new -nodes -keyout key.pem -out csr.pem
+
+And then upload csr.pem to a valid Certificate Authority, for example SSLForFree.

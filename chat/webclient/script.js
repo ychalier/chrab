@@ -349,25 +349,8 @@ function setAttributes(element, attributes) {
 }
 
 function playSound(filename, playerDivId) {
-  let container = document.getElementById(playerDivId);
-  container.innerHTML = "";
-  let player = document.createElement('audio');
-  player.setAttribute('autoplay', 'autoplay');
-  let source = document.createElement('source');
-  setAttributes(source, {
-    'src': filename,
-    'type': 'audio/mpeg'
-  });
-  player.appendChild(source);
-  let embed = document.createElement('embed');
-  setAttributes(embed, {
-    'hidden': 'true',
-    'autostart': 'true',
-    'loop': 'false',
-    'src': filename
-  });
-  player.appendChild(embed);
-  container.appendChild(player);
+  var audio = new Audio(filename);
+  audio.play();
 }
 
 function notify() {
@@ -375,35 +358,23 @@ function notify() {
     playSound('ahbus.mp3', 'audio')
     blink();
     notificationInterval = setInterval(blink, 2100);
-  }
-}
-
-var hidden, visibilityChange;
-if (typeof document.hidden !== "undefined") {
-  hidden = "hidden";
-  visibilityChange = "visibilitychange";
-} else if (typeof document.msHidden !== "undefined") {
-  hidden = "msHidden";
-  visibilityChange = "msvisibilitychange";
-} else if (typeof document.webkitHidden !== "undefined") {
-  hidden = "webkitHidden";
-  visibilityChange = "webkitvisibilitychange";
-}
-
-function handleVisibilityChange() {
-  if (document[hidden]) {
-    active = false;
   } else {
-    active = true;
-    if (notificationInterval) {
-      clearInterval(notificationInterval);
-      notificationInterval = null;
-      document.title = "chrab";
-    }
+    // alert('tried to notify');
   }
 }
 
-document.addEventListener(visibilityChange, handleVisibilityChange, false);
+window.onblur = function(event) {
+  isActive = false;
+}
+
+window.onfocus = function(event) {
+  isActive = true;
+  if (notificationInterval) {
+    clearInterval(notificationInterval);
+    notificationInterval = null;
+    document.title = "chrab";
+  }
+}
 
 // linking login procedure to #form-login
 document.getElementById('form-login-submit')
