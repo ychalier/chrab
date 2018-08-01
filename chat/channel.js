@@ -1,6 +1,11 @@
 const sqlite3 = require('sqlite3').verbose();
 const auth = require('./auth');
+const http = require('http');
 const purl = require('url');
+const fs = require('fs');
+
+
+const pushettaToken = fs.readFileSync('pushetta.token');
 
 
 var pings = {};
@@ -55,6 +60,27 @@ function createChannel(req, res, body) {
 }
 
 
+function notifyPush(channel, login) {
+  let options = {
+    host: 'api.pushetta.com',
+    port: 80,
+    path: '/api/pushes/Chrab/',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Token ' + pushettaToken
+    }
+  }
+  let request = http.request(options, (res) => {});
+  let data = {
+    "body": "New message on " + channel + " from " + login,
+    "message_type": "text/plain"
+  }
+  request.write(JSON.stringify(data));
+  request.end();
+}
+
+
 function postMessage(req, res, body) {
   auth.checkToken(req, res, (login) => {
     const { headers, method, url } = req;
@@ -76,13 +102,14 @@ function postMessage(req, res, body) {
             (err) => {
               if (err) { errorReply(res, err); }
               else {
-                // notifiy all users
+                // notify all users
                 if (channel in pings) {
                   for (player in pings[channel]) {
                     basicReply(pings[channel][player], 200);
                   }
                   delete pings[channel];
                 }
+                notifyPush(channel, login);
                 basicReply(res, 201);
               }
           });
