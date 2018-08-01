@@ -60,24 +60,35 @@ function createChannel(req, res, body) {
 }
 
 
-function notifyPush(channel, login) {
-  let options = {
-    host: 'api.pushetta.com',
-    port: 80,
-    path: '/api/pushes/Chrab/',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Token ' + pushettaToken
+function notifyPush(channel, channelId, login) {
+  let db = new sqlite3.Database('chat.db', (err) => {
+    if (err) { errorReply(res, err); }
+  });
+  db.all('SELECT t FROM messages WHERE channel=(?) ORDER BY t DESC LIMIT 2',
+    [channelId], (err, rows) => {
+    if (err) throw err;
+    let now = new Date();
+    if ((rows.length == 1) || (rows[1].t + 10 * 60 * 1000) < now.getTime()) {
+      let options = {
+        host: 'api.pushetta.com',
+        port: 80,
+        path: '/api/pushes/Chrab/',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + pushettaToken
+        }
+      }
+      let request = http.request(options, (res) => {});
+      let data = {
+        "body": "New message on " + channel + " from " + login,
+        "message_type": "text/plain"
+      }
+      request.write(JSON.stringify(data));
+      request.end();
     }
-  }
-  let request = http.request(options, (res) => {});
-  let data = {
-    "body": "New message on " + channel + " from " + login,
-    "message_type": "text/plain"
-  }
-  request.write(JSON.stringify(data));
-  request.end();
+  });
+  db.close();
 }
 
 
@@ -109,7 +120,7 @@ function postMessage(req, res, body) {
                   }
                   delete pings[channel];
                 }
-                notifyPush(channel, login);
+                notifyPush(channel, rows[0].id, login);
                 basicReply(res, 201);
               }
           });
