@@ -23,15 +23,7 @@ And then add the following line to the document:
 
     1 * * * * /home/pi/sraberry.date.sh
 
-Then, we need to make it so the **server starts at boot**. Server start is achieved by the
-script [start.sh](start.sh), so we just edit the rc.local:
+The server then starts at boot, as a service (`chrab.service`). To access the logs, use the command:
 
-    sudo nano /etc/rc.local
+    sudo journalctl -fu chrab.service
 
-And add this line at the beginning:
-
-    /home/pi/sraberry/start.sh
-
-Finally, as the process is detached, we can connect its ouput using [output.sh](output.sh).
-Basically, this script just retrieve the PID of the main process executing the server,
-and then tails its output (which is redirected to /tmp/log in the starting command).

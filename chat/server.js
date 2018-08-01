@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const http = require('http');
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');

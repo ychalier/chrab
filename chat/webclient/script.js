@@ -359,7 +359,7 @@ function notify() {
     blink();
     notificationInterval = setInterval(blink, 2100);
   } else {
-    alert('tried to notify');
+    // alert('tried to notify');
   }
 }
 
