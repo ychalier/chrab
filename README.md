@@ -55,3 +55,14 @@ The server then starts at boot, as a service. To access the logs, use the comman
 
     sudo journalctl -fu chrab.service
 
+### SSL Certificates
+
+Command to generate a key and a self-signed certificate:
+
+    openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+
+This only works for debugging and development. Do not used in production. Instead, create a certificate request with the following command:
+
+    openssl req -newkey rsa:2048 -new -nodes -keyout key.pem -out csr.pem
+
+And then upload csr.pem to a valid Certificate Authority, for example SSLForFree.

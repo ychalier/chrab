@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 
-const http = require('http');
+const https = require('https');
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const mime = require('mime-types');
+
+const options = {
+  key: fs.readFileSync('/home/pi/ssl/key.pem'),
+  cert: fs.readFileSync('/home/pi/ssl/cert.pem'),
+  ca: fs.readFileSync('/home/pi/ssl/ca.pem')
+};
 
 const tasks = require('./background');
 const channel = require('./channel');
@@ -135,4 +141,4 @@ load_database().close((err) => {
 });
 
 console.log("Starting server on port " + port + "...");
-http.createServer(handleRequest).listen(port);
+https.createServer(options, handleRequest).listen(port);
