@@ -5,7 +5,8 @@ const purl = require('url');
 const fs = require('fs');
 
 
-const pushettaToken = fs.readFileSync('pushetta.token');
+const pushettaToken = fs.readFileSync('pushetta.token')
+  .toString().substring(0, 40);
 
 
 var pings = {};
