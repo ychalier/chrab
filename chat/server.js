@@ -1,21 +1,23 @@
 #!/usr/bin/env node
 
-const https = require('https');
 const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
 const mime = require('mime-types');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
 
 const options = {
-  key: fs.readFileSync('/home/pi/ssl/key.pem'),
-  cert: fs.readFileSync('/home/pi/ssl/cert.pem'),
-  ca: fs.readFileSync('/home/pi/ssl/ca.pem')
+  key: fs.readFileSync('../ssl/key.pem'),
+  cert: fs.readFileSync('../ssl/cert.pem'),
+  ca: fs.readFileSync('../ssl/ca.pem')
 };
 
 const tasks = require('./background');
 const channel = require('./channel');
 const auth = require('./auth');
 
-var port = 8000;
+var portHttp = 8000;
+var portHttps = 8443;
 
 var routes = {
   'GET': {
@@ -140,5 +142,11 @@ load_database().close((err) => {
   }
 });
 
-console.log("Starting server on port " + port + "...");
-https.createServer(options, handleRequest).listen(port);
+console.log("Starting server on port " + portHttps + "...");
+https.createServer(options, handleRequest).listen(portHttps);
+
+http.createServer((req, res) => {
+  console.log(req.headers.host);
+  res.writeHead(301, {Location: `https://${req.headers.host}${req.url}`});
+  res.end();
+}).listen(portHttp);
