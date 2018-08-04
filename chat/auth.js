@@ -2,6 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const crypto = require('crypto');
 
 var expires = 3600;
+const maxSimultaneousConn = 3;
 
 function basicReply(res, statusCode, message='') {
   /* Set the response status codes, writes a message if one is given, and
@@ -176,6 +177,19 @@ function requestToken(req, res, body) {
                       });
                       res.write(JSON.stringify(json));
                       res.end();
+
+                      // delete old tokens
+                      db.all('SELECT * FROM tokens WHERE username=(?) AND '
+                        + 'type="access" ORDER BY t', [rows[0].login],
+                        (err, tokens) => {
+                          if (err) throw err;
+                          for (let i = 0 ; i <
+                            tokens.length - maxSimultaneousConn; i++) {
+                            db.run('DELETE FROM tokens WHERE username=(?) AND '
+                            + 'agent=(?)', [rows[0].login, tokens[i].agent]);  
+                          }
+                      })
+
                     }
                 });
               }
