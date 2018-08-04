@@ -136,6 +136,18 @@ function postMessage(req, res, body) {
         else if (rows.length == 0) {
           basicReply(res, 400, 'Channel does not exists.');
         } else {
+          let isChannelProtected = rows[0].passwd != null;
+          if (isChannelProtected && ('chanpwd' in headers)) {
+            let hash = crypto.createHmac('sha256', headers['chanpwd'])
+                             .digest('hex');
+            if (rows[0].passwd != hash) {
+              basicReply(res, 403, "Wrong channel password");
+              return;
+            }
+          } else if (isChannelProtected) {
+            basicReply(res, 401, "This channel is protected.");
+            return;
+          }
           let now = new Date();
           db.run('INSERT INTO messages(content, channel, username, t) '
             + 'VALUES (?, ?, ?, ?)', [body, rows[0].id, login, now.getTime()],
@@ -188,7 +200,6 @@ function listMessages(req, res, body) {
             basicReply(res, 401, "This channel is protected.");
             return;
           }
-
           let query = purl.parse(url, true).query;
           let timeLowerLimit = 0;
           if ('limit' in query) {
@@ -281,6 +292,18 @@ function ping(req, res, body) {
         else if (rows.length == 0) {
           basicReply(res, 400, 'Channel does not exists.');
         } else {
+          let isChannelProtected = rows[0].passwd != null;
+          if (isChannelProtected && ('chanpwd' in headers)) {
+            let hash = crypto.createHmac('sha256', headers['chanpwd'])
+                             .digest('hex');
+            if (rows[0].passwd != hash) {
+              basicReply(res, 403, "Wrong channel password");
+              return;
+            }
+          } else if (isChannelProtected) {
+            basicReply(res, 401, "This channel is protected.");
+            return;
+          }
           if (!(channel in pings)) {
             pings[channel] = {};
           }
