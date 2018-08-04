@@ -205,13 +205,17 @@ function listChannels(req, res, body) {
     let db = new sqlite3.Database('chat.db', (err) => {
       if (err) { errorReply(res, err); }
     });
-    db.all('SELECT name, delay, creator FROM channels', [],
+    db.all('SELECT name, delay, creator, passwd FROM channels', [],
       (err, rows) => {
         if (err) { errorReply(res, err); }
         else {
           res.writeHead(200, {
             'Content-Type': 'application/json'
           });
+          for (let i = 0; i < rows.length; i++) {
+            rows[i]['protected'] = rows[i]['passwd'] != null;
+            delete rows[i].passwd;
+          }
           res.write(JSON.stringify(rows));
           res.end();
         }
