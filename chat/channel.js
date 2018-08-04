@@ -46,8 +46,8 @@ function createChannel(req, res, body) {
         } else if (!regex.exec(body)){
           basicReply(res, 400, 'Invalid channel name.');
         } else {
-          db.run('INSERT INTO channels(name, delay) VALUES (?, ?)',
-          [body, defaultChannelDelay], (err) => {
+          db.run('INSERT INTO channels(name, delay, creator) VALUES (?, ?, ?)',
+          [body, defaultChannelDelay, login], (err) => {
               if (err) { errorReply(res, err); }
               else {
                 basicReply(res, 201);
@@ -177,7 +177,7 @@ function listChannels(req, res, body) {
     let db = new sqlite3.Database('chat.db', (err) => {
       if (err) { errorReply(res, err); }
     });
-    db.all('SELECT name FROM channels', [],
+    db.all('SELECT name, delay, creator FROM channels', [],
       (err, rows) => {
         if (err) { errorReply(res, err); }
         else {
