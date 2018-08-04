@@ -1,6 +1,12 @@
 const sqlite3 = require('sqlite3').verbose();
 const auth = require('./auth');
+const http = require('http');
 const purl = require('url');
+const fs = require('fs');
+
+
+const pushettaToken = fs.readFileSync('pushetta.token')
+  .toString().substring(0, 40);
 
 
 var pings = {};
@@ -55,6 +61,38 @@ function createChannel(req, res, body) {
 }
 
 
+function notifyPush(channel, channelId, login) {
+  let db = new sqlite3.Database('chat.db', (err) => {
+    if (err) { errorReply(res, err); }
+  });
+  db.all('SELECT t FROM messages WHERE channel=(?) ORDER BY t DESC LIMIT 2',
+    [channelId], (err, rows) => {
+    if (err) throw err;
+    let now = new Date();
+    if ((rows.length == 1) || (rows[1].t + 10 * 60 * 1000) < now.getTime()) {
+      let options = {
+        host: 'api.pushetta.com',
+        port: 80,
+        path: '/api/pushes/Chrab/',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + pushettaToken
+        }
+      }
+      let request = http.request(options, (res) => {});
+      let data = {
+        "body": "New message on " + channel + " from " + login,
+        "message_type": "text/plain"
+      }
+      request.write(JSON.stringify(data));
+      request.end();
+    }
+  });
+  db.close();
+}
+
+
 function postMessage(req, res, body) {
   auth.checkToken(req, res, (login) => {
     const { headers, method, url } = req;
@@ -76,13 +114,14 @@ function postMessage(req, res, body) {
             (err) => {
               if (err) { errorReply(res, err); }
               else {
-                // notifiy all users
+                // notify all users
                 if (channel in pings) {
                   for (player in pings[channel]) {
                     basicReply(pings[channel][player], 200);
                   }
                   delete pings[channel];
                 }
+                notifyPush(channel, rows[0].id, login);
                 basicReply(res, 201);
               }
           });
