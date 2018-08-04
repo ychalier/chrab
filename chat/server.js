@@ -137,7 +137,7 @@ function load_database() {
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, channel INTEGER, '
     + 'username TEXT, t INTEGER)');
   db.run('CREATE TABLE IF NOT EXISTS membership '
-    + '(id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, '
+    + '(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, '
     + 'channelId INTEGER, lastop INTEGER)');
   return db;
 }

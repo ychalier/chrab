@@ -165,6 +165,7 @@ function postMessage(req, res, body) {
                 basicReply(res, 201);
               }
           });
+          handleMembership(login, rows[0].id);
         }
     });
     db.close();
@@ -312,6 +313,26 @@ function ping(req, res, body) {
     });
     db.close();
   });
+}
+
+
+function handleMembership(username, channelId) {
+  let localDb = new sqlite3.Database('chat.db', (err) => {
+    if (err) { errorReply(res, err); }
+  });
+  localDb.all('SELECT * FROM membership WHERE username=(?) AND channelId=(?)',
+    [username, channelId], (err, rows) => {
+      if (err) throw err;
+      let now = new Date();
+      if (rows.length == 0) {  // a new membership
+        localDb.run('INSERT INTO membership(username, channelId, lastop) '
+          + 'VALUES (?, ?, ?)', [username, channelId, now.getTime()]);
+      } else {  // membership renewal
+        localDb.run('UPDATE membership SET lastop=(?) WHERE id=(?)',
+          [now.getTime(), rows[0].id]);
+      }
+    });
+  localDb.close();
 }
 
 
