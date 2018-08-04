@@ -147,17 +147,19 @@ function requestToken(req, res, body) {
             let refresh = generateToken(req);
             let now = new Date();
 
-            // delete previous tokens
-            db.run('DELETE FROM tokens WHERE username=(?)', [rows[0].login],
+            // delete previous tokens from same agent
+            db.run('DELETE FROM tokens WHERE username=(?) AND agent=(?)',
+            [rows[0].login, req.headers['user-agent']],
             (err) => {
               if (err) { errorReply(res, err); }
               else {
 
                 // insert new ones
-                db.run('INSERT INTO tokens(type, hash, expires, username, t) '
-                  + 'VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)',
+                db.run('INSERT INTO tokens(type, hash, expires, username, t, '
+                  + 'agent) VALUES (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?)',
                   ['access', access.hash, expires, rows[0].login, now.getTime(),
-                  'refresh', refresh.hash, 0, rows[0].login, now.getTime()],
+                  req.headers['user-agent'], 'refresh', refresh.hash, 0,
+                  rows[0].login, now.getTime(), req.headers['user-agent']],
                   (err) => {
                     if (err) { errorReply(res, err); }
                     else {
@@ -243,13 +245,15 @@ function refreshToken(req, res, body) {
             // generate new token and delete old ones
             let { salt, hash } = generateToken(req);
             let now = new Date();
-            db.run('DELETE FROM tokens WHERE type="access" AND username=(?)',
-              [rows[0].username], (err) => {
+            db.run('DELETE FROM tokens WHERE type="access" AND username=(?) '
+             + 'AND agent=(?)',
+              [rows[0].username, req.headers['user-agent']], (err) => {
                 if (err) { errorReply(res, err); }
                 else {
-                  db.run('INSERT INTO tokens(type, hash, expires, username, t)'
-                    + ' VALUES (?, ?, ?, ?, ?)',
-                    ['access', hash, expires, rows[0].username, now.getTime()],
+                  db.run('INSERT INTO tokens(type, hash, expires, username, t, '
+                    + 'agent) VALUES (?, ?, ?, ?, ?, ?)',
+                    ['access', hash, expires, rows[0].username, now.getTime(),
+                    req.headers['user-agent']],
                     (err) => {
                       if (err) { errorReply(res, err); } else {
                         let json = {
