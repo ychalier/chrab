@@ -136,6 +136,9 @@ function load_database() {
   db.run('CREATE TABLE IF NOT EXISTS messages '
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, channel INTEGER, '
     + 'username TEXT, t INTEGER)');
+  db.run('CREATE TABLE IF NOT EXISTS membership '
+    + '(id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, '
+    + 'channelId INTEGER, lastop INTEGER)');
   return db;
 }
 
