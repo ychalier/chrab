@@ -132,7 +132,7 @@ function load_database() {
     + 'expires INTEGER, username TEXT, t INTEGER)');
   db.run('CREATE TABLE IF NOT EXISTS channels '
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, delay INT, '
-    + 'creator TEXT)');
+    + 'creator TEXT, passwd TEXT)');
   db.run('CREATE TABLE IF NOT EXISTS messages '
     + '(id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, channel INTEGER, '
     + 'username TEXT, t INTEGER)');

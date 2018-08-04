@@ -1,4 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
+const crypto = require('crypto');
 const auth = require('./auth');
 const http = require('http');
 const purl = require('url');
@@ -33,26 +34,53 @@ function errorReply(res, err) {
 
 function createChannel(req, res, body) {
   auth.checkToken(req, res, (login) => {
+    let json;
+    try {
+      json = JSON.parse(body);
+    } catch (e) {
+      basicReply(res, 400, 'Invalid JSON');
+      return;
+    }
+    if (!('name' in json)) {
+      basicReply(res, 400, 'Invalid JSON: missing "name" field.');
+      return;
+    }
+
+    let regex = /^([\w-]+)$/gm;
+    console.log(json);
+
     let db = new sqlite3.Database('chat.db', (err) => {
       if (err) { errorReply(res, err); }
     });
-
-    let regex = /^([\w-]+)$/gm;
-    db.all('SELECT * FROM channels WHERE name=(?) LIMIT 1', [body],
+    db.all('SELECT * FROM channels WHERE name=(?) LIMIT 1', [json['name']],
       (err, rows) => {
         if (err) { errorReply(res, err); }
         else if (rows.length > 0) {
           basicReply(res, 400, 'Channel already exists.');
-        } else if (!regex.exec(body)){
+        } else if (!regex.exec(json['name'])){
           basicReply(res, 400, 'Invalid channel name.');
         } else {
-          db.run('INSERT INTO channels(name, delay, creator) VALUES (?, ?, ?)',
-          [body, defaultChannelDelay, login], (err) => {
-              if (err) { errorReply(res, err); }
-              else {
-                basicReply(res, 201);
-              }
-          });
+          if ('passwd' in json) {
+            let hash = crypto.createHmac('sha256', json['passwd'])
+                             .digest('hex');
+            db.run('INSERT INTO channels(name, delay, creator, passwd) VALUES '
+              + '(?, ?, ?, ?)', [json['name'], defaultChannelDelay, login,
+              hash], (err) => {
+                if (err) { errorReply(res, err); }
+                else {
+                  basicReply(res, 201);
+                }
+              });
+          } else {
+            db.run('INSERT INTO channels(name, delay, creator) VALUES '
+             + '(?, ?, ?)', [json['name'], defaultChannelDelay, login],
+             (err) => {
+                if (err) { errorReply(res, err); }
+                else {
+                  basicReply(res, 201);
+                }
+            });
+          }
         }
     });
 
