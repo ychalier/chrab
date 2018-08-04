@@ -193,6 +193,33 @@ function listChannels(req, res, body) {
 }
 
 
+function deleteChannel(req, res, body) {
+  auth.checkToken(req, res, (login) => {
+    const { headers, method, url } = req;
+    const regex = /^\/channel\/([\w-]+)$/gm;
+    let radix = url.split("?")[0];
+    let channel = regex.exec(radix)[1];
+    let db = new sqlite3.Database('chat.db', (err) => {
+      if (err) { errorReply(res, err); }
+    });
+    db.all('SELECT * FROM channels WHERE name=(?) LIMIT 1', [channel],
+      (err, rows) => {
+        if (err) { errorReply(res, err); }
+        else if (rows.length == 0) {
+          basicReply(res, 400, 'Channel does not exists.');
+        } else if (rows[0].creator != login) {
+          basicReply(res, 403, 'You are not the channel creator.');
+        } else {
+          db.run('DELETE FROM channels WHERE id = (?)', [rows[0].id]);
+          db.run('DELETE FROM messages WHERE channel = (?)', [rows[0].id]);
+          db.close();
+          basicReply(res, 200, 'Channel ' + rows[0].name + ' deleted.');
+        }
+    });
+  });
+}
+
+
 function ping(req, res, body) {
   auth.checkToken(req, res, (login) => {
     const { headers, method, url } = req;
@@ -219,4 +246,5 @@ function ping(req, res, body) {
 }
 
 
-module.exports = {createChannel, postMessage, listMessages, listChannels, ping};
+module.exports = {createChannel, postMessage, listMessages, listChannels, ping,
+  deleteChannel};

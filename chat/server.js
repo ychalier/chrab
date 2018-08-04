@@ -64,6 +64,9 @@ var routes = {
     '^/channel/[\\w-]+$': channel.postMessage,
     '^/create-channel$': channel.createChannel
 
+  },
+  'DELETE': {
+    '^/channel/[\\w-]+$': channel.deleteChannel
   }
 }
 
