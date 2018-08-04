@@ -286,7 +286,8 @@ function logout(req, res, body) {
     let db = new sqlite3.Database('chat.db', (err) => {
       if (err) { errorReply(res, err); }
     });
-    db.run('DELETE FROM tokens WHERE username=(?)', [login], (err) => {
+    db.run('DELETE FROM tokens WHERE username=(?) AND agent=(?)',
+      [login, req.headers['user-agent']], (err) => {
       if (err) { errorReply(res, err); }
       else {
         basicReply(res, 200);
