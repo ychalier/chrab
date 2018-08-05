@@ -186,7 +186,7 @@ function requestToken(req, res, body) {
                           for (let i = 0 ; i <
                             tokens.length - maxSimultaneousConn; i++) {
                             db.run('DELETE FROM tokens WHERE username=(?) AND '
-                            + 'agent=(?)', [rows[0].login, tokens[i].agent]);  
+                            + 'agent=(?)', [rows[0].login, tokens[i].agent]);
                           }
                       })
 
@@ -230,6 +230,25 @@ function checkToken(req, res, callback) {
   } else {
     basicReply(res, 401);  // Unauthorized
   }
+}
+
+
+function listSessions(req, res, body) {
+  checkToken(req, res, (login) => {
+    let db = new sqlite3.Database('chat.db', (err) => {
+      if (err) { errorReply(res, err); }
+    });
+    db.all('SELECT t, agent FROM tokens WHERE type="refresh" AND username=(?)',
+      [login], (err, rows) => {
+      if (err) throw err;
+      res.statusCode = 200;
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      });
+      res.write(JSON.stringify(rows));
+      res.end();
+    });
+  });
 }
 
 
@@ -312,4 +331,4 @@ function logout(req, res, body) {
 
 
 module.exports = {register, requestToken, checkToken, validateToken,
-  refreshToken, logout};
+  refreshToken, logout, listSessions};

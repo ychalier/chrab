@@ -33,6 +33,7 @@ var routes = {
     '^/retrieve-token$': auth.requestToken,
     '^/validate-token$': auth.validateToken,
     '^/refresh-token$': auth.refreshToken,
+    '^/list-sessions$': auth.listSessions,
     '^/logout$': auth.logout,
     '^/channel/[\\w-]+$': channel.listMessages,
     '^/ping/[\\w-]+$': channel.ping,
