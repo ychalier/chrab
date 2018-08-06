@@ -1,3 +1,5 @@
+var modalShown;  // null if none is shown
+
 var accountPanelState = false;  // true when logged in
 function setAccountPanelState(state) {
   accountPanelState = state;
@@ -60,5 +62,68 @@ function appendChannel(name, delay, isProtected, isOwned,
   parent.appendChild(divider);
 }
 
+function showModal(element) {
+  if (modalShown) {
+    hideModal(modalShown);
+    setTimeout(function() {
+      showModal(element);
+    }, 10);
+    return;
+  }
+  element.style.display = "flex";
+  setTimeout(function() {
+    element.style.opacity = 1;
+  }, 10);
+  modalShown = element;
+}
+
+function hideModal(element=null) {
+  if (element == null && modalShown != null) element = modalShown;
+  element.style.opacity = 0;
+  setTimeout(function() {
+    element.removeAttribute("style");
+  }, 200);
+  modalShown = null;
+}
+
+function setupModalWindows() {
+  let array = document.getElementsByClassName("modal");
+  for (let i = 0; i < array.length; i++) {
+    array[i].addEventListener("click", function(event) {
+      event.stopPropagation();
+      hideModal(event.target);
+    });
+    let childs = array[i].getElementsByTagName("*");
+    for (let j = 0; j < childs.length; j++) {
+      childs[j].addEventListener("click", function(subEvent) {
+        subEvent.stopPropagation();
+      })
+    }
+  }
+}
+
 storeDisplayProperties();
 setAccountPanelState(true);
+setupModalWindows();
+
+window.addEventListener("keyup", function(event) {
+  let keyCode = event.keyCode;
+  if (keyCode == 27 && modalShown != null) {  // ESCAPE
+    hideModal();
+  }
+}, false);
+
+document.getElementById("button-login").addEventListener("click",
+(event) => {
+  showModal(document.getElementById("login-form"));
+});
+
+document.getElementById("button-register").addEventListener("click",
+(event) => {
+  showModal(document.getElementById("register-form"));
+});
+
+document.getElementById("button-create-channel").addEventListener("click",
+(event) => {
+  showModal(document.getElementById("create-channel-form"));
+});

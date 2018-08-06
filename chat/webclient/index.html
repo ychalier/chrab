@@ -23,7 +23,7 @@
       <div id="sidebar-wrapper">
         <div id="account-panel">
           <div id="account-panel-top">
-            <button class="btn-black state-false">login</button>
+            <button id="button-login" class="btn-black state-false">login</button>
             <div id="user-panel" class="state-true">
               <div id="username">username</div>
               <div id="user-info">
@@ -33,7 +33,7 @@
             </div>
           </div>
           <div id="account-panel-bottom">
-            <a class="btn-black state-false" href="register.html">register</a>
+            <button id="button-register" class="btn-black state-false">register</button>
             <button class="btn-black state-true">logout</button>
           </div>
         </div>
@@ -48,10 +48,33 @@
           </div>
         </div>
         <div id="create-channel-panel">
-          <button class="btn-black state-true">create <br /> channel</button>
+          <button id="button-create-channel" class="btn-black state-true">create <br /> channel</button>
         </div>
       </div>
     </div>
+    <form id="register-form" class="modal">
+      <div class="modal-wrapper">
+        <h1>register a new user</h1>
+        <input type="text" placeholder="username" />
+        <input type="password" placeholder="password" />
+        <button class="btn-black">register</button>
+      </div>
+    </form>
+    <form id="login-form" class="modal">
+      <div class="modal-wrapper">
+        <input type="text" placeholder="username" />
+        <input type="password" placeholder="password" />
+        <button class="btn-black">login</button>
+      </div>
+    </form>
+    <form id="create-channel-form" class="modal">
+      <div class="modal-wrapper">
+        <h1>create a channel</h1>
+        <input type="text" placeholder="channel name" />
+        <input type="password" placeholder="password (optional)" />
+        <button class="btn-black">create</button>
+      </div>
+    </form>
     <script src="api.js"></script>
     <script src="view.js"></script>
   </body>

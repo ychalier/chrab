@@ -241,3 +241,44 @@ body {
   position: absolute;
   text-transform: lowercase;
 }
+
+.modal {
+  top: 0;
+  left: 0;
+  opacity: 0;
+  width: 100%;
+  color: black;
+  height: 100%;
+  display: none;
+  position: fixed;
+  background: white;
+  text-align: center;
+  transition: .2s linear;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modal-wrapper {
+  margin: auto;
+  text-align: center;
+}
+
+.modal h1 {
+  color: black;
+}
+
+.modal .btn-black {
+  margin-top: 12px;
+}
+
+.modal input, .modal input:active, .modal input:focus {
+  color: white;
+  padding: 8px;
+  width: 200px;
+  border: none;
+  display: block;
+  max-width: 100%;
+  font-size: 20px;
+  background: black;
+  margin: 8px auto 8px auto;
+}
