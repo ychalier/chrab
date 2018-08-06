@@ -60,6 +60,7 @@ function appendChannel(name, delay, isProtected, isOwned,
   let divider = document.createElement("div");
   divider.className = "divider";
   parent.appendChild(divider);
+  return node;
 }
 
 function showModal(element) {
@@ -106,7 +107,7 @@ function resetChat() {
   let parent = document.getElementById("message-panel");
   let childs = parent.childNodes;
   for (let i = 0; i < childs.length; i++) {
-    if (childs[i].className && !childs[i].hasAttribute("id")) {
+    if ("hasAttribute" in childs[i] && !childs[i].hasAttribute("id")) {
       parent.removeChild(childs[i]);
     }
   }
@@ -114,13 +115,20 @@ function resetChat() {
   document.querySelector("#message-form > input").setAttribute("disabled", "");
 }
 
-function resetChannels() {
+function resetChannelsViews() {
   let parent = document.getElementById("channel-list-panel");
   let childs = parent.childNodes;
   for (let i = 0; i < childs.length; i++) {
     if (childs[i].className && !childs[i].hasAttribute("id")) {
       parent.removeChild(childs[i]);
     }
+  }
+}
+
+function cleanForm(form) {
+  let inputs = form.getElementsByTagName("input");
+  for (let i = 0; i < inputs.length; i++) {
+    inputs[i].value = "";
   }
 }
 
@@ -157,7 +165,7 @@ function appendMessage(self, body, time, author) {
 function resetView() {
   setAccountPanelState(false);
   resetChat();
-  resetChannels();
+  resetChannelsViews();
 }
 
 storeDisplayProperties();

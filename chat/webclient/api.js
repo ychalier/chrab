@@ -162,9 +162,3 @@ function loadCookies(callback=null) {
     }
   }
 }
-
-/******************************/
-/***** EXECUTE AT LOADING *****/
-/******************************/
-
-loadCookies();
