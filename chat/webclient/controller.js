@@ -27,7 +27,8 @@ function dateTimeToString(time) {
   if (now.getTime() - time > 24 * 3600000 || now.getDate() != date.getDate()) {
     string = days[date.getDay()] + ". " + date.getDate() + " ─ ";
   }
-  return string + date.getHours() + ":" + date.getMinutes();
+  return string + (date.getHours() < 10 ? "0": "") + date.getHours() + ":"
+    + (date.getMinutes() < 10 ? "0": "") + date.getMinutes();
 }
 
 function resetChannels() {
@@ -36,6 +37,14 @@ function resetChannels() {
   lastMessageTimestamp = null;
   document.getElementById("channel-name").innerHTML = "Ø";
   resetChannelsViews();
+}
+
+function channelHeader() {
+  let base = bearerAuthorizationHeader();
+  if (channelPassword != null) {
+    base["chanpwd"] = channelPassword;
+  }
+  return base;
 }
 
 function fetchChannels() {
@@ -64,6 +73,7 @@ function joinChannel(channelName, isProtected) {
     resetChat();
     channelSelected = channelName;
     document.getElementById("channel-name").innerHTML = channelSelected;
+    document.querySelector("#message-form > input").removeAttribute("disabled");
     retrieveMessages();
   }
 }
@@ -74,10 +84,7 @@ function retrieveMessages() {
     if (lastMessageTimestamp != null) {
       getParameters += "?limit=" + (lastMessageTimestamp + 1);
     }
-    let headers = bearerAuthorizationHeader();
-    if (channelPassword != null) {
-      headers["chanpwd"] = channelPassword;
-    }
+    let headers = channelHeader();
     sendRequest("GET", "/channel/" + channelSelected + getParameters, headers, {
       200: (response) => {
         let json = JSON.parse(response);
@@ -94,7 +101,6 @@ function retrieveMessages() {
 function successfulLogin() {
   document.getElementById("username").innerHTML = login;
   setAccountPanelState(true);
-  document.querySelector("#message-form > input").removeAttribute("disabled");
   fetchChannels();
 }
 
@@ -105,7 +111,7 @@ function(event) {
     document.querySelector("#login-form input:nth-of-type(1)").value,
     document.querySelector("#login-form input:nth-of-type(2)").value,
     successfulLogin);
-  cleanForm(document.getElementById("login-form"));
+  cleanForm(event.target);
   hideModal();
 });
 
@@ -116,8 +122,19 @@ function (event) {
   joinChannel(
     document.querySelector("#join-channel-form").getAttribute("channel"),
     false);
-  cleanForm(document.getElementById("join-channel-form"));
+  cleanForm(event.target);
   hideModal();
+});
+
+document.getElementById("message-form").addEventListener("submit",
+function(event) {
+  event.preventDefault();
+  sendRequest("POST", "/channel/" + channelSelected, channelHeader(), {
+    201: (response) => {
+      retrieveMessages();  //TODO: remove when pinging works
+    }
+  }, htmlEscape(document.querySelector("#message-form input").value));
+  cleanForm(event.target);
 });
 
 resetView();
