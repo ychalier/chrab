@@ -130,3 +130,50 @@ body {
 .divider-lg {
   height: 3px;
 }
+
+.channel-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.channel-name {
+  color: black;
+  font-size: 18px;
+  padding: 8px 2px 8px 8px;
+  height: 100%;
+  font-weight: bold;
+  cursor: pointer;
+  max-width: 120px;
+  word-wrap: break-word;
+}
+
+.channel-name:hover {
+  color: #AAA;
+}
+
+.channel-delay {
+  padding-top: 14px;
+  color: #AAA;
+  font-size: 10px;
+  margin-left: -3px;
+}
+
+.channel-wrapper img {
+  padding-top: 13px;
+  width: 16px;
+  height: 16px;
+  opacity: .62;
+  margin: 0 2px 0 2px;
+}
+
+.channel-trash {
+  cursor: pointer;
+  transition: .1s linear;
+}
+
+.channel-trash:hover {
+  opacity: 1;
+}

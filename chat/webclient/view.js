@@ -30,5 +30,35 @@ function storeDisplayProperties() {
   }
 }
 
+function appendChannel(name, delay, isProtected, isOwned,
+    nameCallback=null, trashCallback=null) {
+  let node = document.getElementById("channel-wrapper-example").cloneNode(true);
+  let parent = document.getElementById("channel-list-panel");
+  node.removeAttribute("style");
+  node.removeAttribute("id");
+  node.getElementsByClassName("channel-name")[0].innerHTML = name;
+  node.getElementsByClassName("channel-delay")[0].innerHTML = delay;
+  if (!isProtected) {
+    node.getElementsByClassName("channel-lock")[0]
+      .setAttribute("style", "display:none");
+  }
+  if (!isOwned) {
+    node.getElementsByClassName("channel-trash")[0]
+      .setAttribute("style", "display:none");
+  }
+  if (nameCallback) {
+    node.getElementsByClassName("channel-name")[0]
+      .addEventListener("click", nameCallback);
+  }
+  if (trashCallback) {
+    node.getElementsByClassName("channel-trash")[0]
+      .addEventListener("click", trashCallback);
+  }
+  parent.appendChild(node);
+  let divider = document.createElement("div");
+  divider.className = "divider";
+  parent.appendChild(divider);
+}
+
 storeDisplayProperties();
 setAccountPanelState(true);
