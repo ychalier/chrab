@@ -102,6 +102,36 @@ function setupModalWindows() {
   }
 }
 
+var lastAuthor;
+function appendMessage(self, body, time, author) {
+  let parent = document.getElementById("message-panel");
+  if (lastAuthor && author && lastAuthor == author) {
+    parent.lastChild.className = parent.lastChild.className + " message-center";
+  } else if (lastAuthor && author && !self) {
+    let authorNode = document.getElementById("message-author-example")
+                      .cloneNode(true);
+    authorNode.removeAttribute("style");
+    authorNode.removeAttribute("id");
+    authorNode.innerHTML = author;
+    parent.appendChild(authorNode);
+  }
+  let node;
+  if (self) {
+    node = document.getElementById("message-wrapper-right-example")
+            .cloneNode(true);
+  } else {
+    node = document.getElementById("message-wrapper-left-example")
+            .cloneNode(true);
+  }
+  node.removeAttribute("style");
+  node.removeAttribute("id");
+  node.getElementsByClassName("message-time")[0].innerHTML = time;
+  node.getElementsByClassName("message-body")[0].innerHTML = body;
+  parent.appendChild(node);
+  parent.scrollTop = parent.scrollHeight;
+  lastAuthor = author;
+}
+
 storeDisplayProperties();
 setAccountPanelState(true);
 setupModalWindows();
