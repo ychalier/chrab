@@ -15,7 +15,7 @@ function displayElementsFromState(state, parent) {
     if (cn && cn.includes("state-" + state)) {  // show it
       if (childs[i].hasAttribute("display")) {
         childs[i].style.display = childs[i].getAttribute("display");
-      } else {
+      } else if (childs[i].style.display == "none") {
         childs[i].style.display = "block";
       }
     } else if (cn && cn.includes("state-" + (!state))) {  // hide it
@@ -24,3 +24,5 @@ function displayElementsFromState(state, parent) {
     }
   }
 }
+
+setAccountPanelState(false);
