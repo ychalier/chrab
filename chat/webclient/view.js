@@ -102,6 +102,28 @@ function setupModalWindows() {
   }
 }
 
+function resetChat() {
+  let parent = document.getElementById("message-panel");
+  let childs = parent.childNodes;
+  for (let i = 0; i < childs.length; i++) {
+    if (childs[i].className && !childs[i].hasAttribute("id")) {
+      parent.removeChild(childs[i]);
+    }
+  }
+  document.getElementById("channel-name").innerHTML = "Ø";
+  document.querySelector("#message-form > input").setAttribute("disabled", "");
+}
+
+function resetChannels() {
+  let parent = document.getElementById("channel-list-panel");
+  let childs = parent.childNodes;
+  for (let i = 0; i < childs.length; i++) {
+    if (childs[i].className && !childs[i].hasAttribute("id")) {
+      parent.removeChild(childs[i]);
+    }
+  }
+}
+
 var lastAuthor;
 function appendMessage(self, body, time, author) {
   let parent = document.getElementById("message-panel");
@@ -132,8 +154,13 @@ function appendMessage(self, body, time, author) {
   lastAuthor = author;
 }
 
+function resetView() {
+  setAccountPanelState(false);
+  resetChat();
+  resetChannels();
+}
+
 storeDisplayProperties();
-setAccountPanelState(true);
 setupModalWindows();
 
 window.addEventListener("keyup", function(event) {
