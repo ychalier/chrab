@@ -37,6 +37,8 @@ body {
 
 #chat-wrapper {
   width: 58.7vh;
+  display: flex;
+  flex-direction: column;
 }
 
 #sidebar-wrapper {
@@ -176,4 +178,66 @@ body {
 
 .channel-trash:hover {
   opacity: 1;
+}
+
+#message-panel {
+  height: 100%;
+}
+
+#channel-info {
+  background: white;
+  color: black;
+  text-align: center;
+  padding: 8px 0 8px 0;
+}
+
+#channel-info * {
+  color: black;
+  font-size: 25px;
+  font-weight: bold;
+  margin: 0 8px 0 8px;
+}
+
+#channel-name {
+  color: white;
+  background: black;
+}
+
+#message-form {
+  display: flex;
+  flex-direction: row;
+  padding: 8px 0 8px 0;
+}
+
+#message-form > input[type="text"] {
+  width: 100%;
+  border: none;
+  background: black;
+  padding-left: 8px;
+  font-size: 20px;
+}
+
+#message-form > button {
+  padding: 0;
+  width: 58px;
+  height: 25px;
+  border: none;
+  cursor: pointer;
+  background: white;
+  position: relative;
+  margin: 4px 8px 8px 8px;
+}
+
+#message-form > button:hover > span{
+  color: white;
+  background: black;
+}
+
+#message-form > button > span{
+  left: 0;
+  top: -4px;
+  color: black;
+  font-size: 25px;
+  position: absolute;
+  text-transform: lowercase;
 }
