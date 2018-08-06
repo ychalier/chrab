@@ -5,24 +5,30 @@ function setAccountPanelState(state) {
     document.getElementById("account-panel-top"));
   displayElementsFromState(state,
     document.getElementById("account-panel-bottom"));
+  displayElementsFromState(state,
+    document.getElementById("create-channel-panel"));
 }
 
 function displayElementsFromState(state, parent) {
-  /* parent is an (DOM) element */
+  /* parent is a DOM element */
   let childs = parent.childNodes;
   for (let i = 0; i < childs.length; i++) {
     let cn = childs[i].className;
-    if (cn && cn.includes("state-" + state)) {  // show it
-      if (childs[i].hasAttribute("display")) {
-        childs[i].style.display = childs[i].getAttribute("display");
-      } else if (childs[i].style.display == "none") {
-        childs[i].style.display = "block";
-      }
-    } else if (cn && cn.includes("state-" + (!state))) {  // hide it
-      childs[i].setAttribute("display", childs[i].style.display);
-      childs[i].style.display = "none";
+    if (cn && cn.includes("state-" + state)) {
+      childs[i].style.display = childs[i].getAttribute("display");  // show it
+    } else if (cn && cn.includes("state-" + (!state))) {
+      childs[i].style.display = "none";  // hide it
     }
   }
 }
 
-setAccountPanelState(false);
+function storeDisplayProperties() {
+  let array = document.querySelectorAll(".state-true, .state-false");
+  for (let i = 0; i < array.length; i++) {
+    array[i].setAttribute("display",
+      window.getComputedStyle(array[i], null).getPropertyValue("display"));
+  }
+}
+
+storeDisplayProperties();
+setAccountPanelState(true);

@@ -40,6 +40,8 @@ body {
 }
 
 #sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
   width: 200px;
   color: black;
   background: white;
@@ -91,15 +93,25 @@ body {
   font-weight: bold;
 }
 
+#channel-list-panel {
+  height: 100%;
+  overflow: scroll;
+}
+
+#create-channel-panel {
+  text-align: center;
+  margin: 8px 0 8px 0;
+}
+
 .btn-black {
   border: none;
   margin: auto;
   color: white;
-  display: inline-block;
   cursor: pointer;
   font-size: 20px;
   background: black;
   font-weight: bold;
+  display: inline-block;
   text-decoration: none;
   padding: 4px 8px 4px 8px;
   text-transform: uppercase;
