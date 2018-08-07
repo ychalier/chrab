@@ -145,7 +145,7 @@ function playSound(filename, playerDivId) {
 
 function notify() {
   if (!isActive) {
-    playSound('ahbus.mp3', 'audio')
+    playSound('assets/ahbus.mp3', 'audio')
     blink();
     notificationInterval = setInterval(blink, 2100);
   } else if (debug) {
