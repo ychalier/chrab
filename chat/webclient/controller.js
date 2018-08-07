@@ -102,6 +102,14 @@ setSubmitEvent("form__create-channel", (event) => {
   );
 }, true);
 
+setSubmitEvent("form__register", (event) => {
+  let u = htmlEscape(event.target.querySelector("input:nth-of-type(1)").value);
+  let p = event.target.querySelector("input:nth-of-type(2)").value;
+  register(u, p, () => {
+    retrieveToken(u, p, successfulLogin);
+  });
+}, true);
+
 document.getElementById("sidebar__account__logout").addEventListener("click",
   function(event) {
     logout();
