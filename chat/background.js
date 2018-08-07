@@ -51,6 +51,8 @@ function scheduler() {
   }
 }
 
+clearOldMessages();
+clearOldTokens();
 var bg_interval = setInterval(scheduler, refresh_rate);
 
 module.exports = {};

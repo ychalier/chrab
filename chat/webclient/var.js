@@ -10,3 +10,5 @@ var lastMessageTimestamp;
 /***** VIEWS *****/
 var modal;  // currently displayed modal window
 var lastAuthor;  // author of lastly displayed message
+
+var currentPing;

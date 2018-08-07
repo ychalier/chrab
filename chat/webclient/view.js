@@ -116,9 +116,11 @@ function addViewChannel(name, delay, isProtected, isOwned,
 
 function addViewMessage(self, body, time, author) {
   let parent = document.getElementById("chat__messages");
-  if (lastAuthor && author && lastAuthor == author) {
+  if (lastAuthor && author && lastAuthor == author
+      && !parent.lastChild.hasAttribute("id")) {
     parent.lastChild.className = parent.lastChild.className + "--mid";
-  } else if (lastAuthor && author && !self) {
+  } else if ((lastAuthor == null && !self)
+    || (lastAuthor != null && lastAuthor != author && !self)) {
     let authorNode = document.getElementById("example__chat__messages__author")
                       .cloneNode(true);
     authorNode.removeAttribute("style");
@@ -182,6 +184,7 @@ function removeUnidentifiedChildren(parent) {
     }
   }
   for (let i = 0; i < toDelete.length; i++) {
+    console.log(toDelete[i]);
     parent.removeChild(toDelete[i]);
   }
 }

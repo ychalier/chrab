@@ -46,11 +46,11 @@ function joinChannel(channelName, isProtected) {
     showModal(form);
   } else {
     selectedChannel = channelName;
-    retrieveMessages(channelName);
+    retrieveMessagesFirst();
   }
 }
 
-function retrieveMessages() {
+function retrieveMessagesFirst() {
   getMessages((messages) => {
     resetChatView();
     setJoinedChannelView();
@@ -59,6 +59,24 @@ function retrieveMessages() {
       addViewMessage(login == username, content, datetimeToString(t), username);
       lastMessageTimestamp = t;
     }
+    if (currentPing) {
+      // if we were pinging a channel, we do not need to get notified anymore.
+      // so when the connection will timeout on the server-side (about 2mins),
+      // no update will be made and also no more pings for this channel.
+      currentPing.onreadystatechange = function() {};
+    }
+    ping();
+  });
+}
+
+function retrieveMessages() {
+  getMessages((messages) => {
+    for (let i = 0; i < messages.length; i++) {
+      let {username, content, t} = messages[i];
+      addViewMessage(login == username, content, datetimeToString(t), username);
+      lastMessageTimestamp = t;
+    }
+    ping();
   });
 }
 
@@ -88,6 +106,31 @@ function setSubmitEvent(formId, callback, hide=false) {
   });
 }
 
+function ping() {
+  var callTime = new Date().getTime();
+  if (selectedChannel) {
+    currentPing = sendRequest("GET", "/ping/" + selectedChannel,
+      channelHeader(), {
+      200: (response) => {  // a new message has been posted, so we update and
+        retrieveMessages(); // re-send a ping for the next message(s)
+        ping();
+        // notify(); TODO: uncomment that when ready
+      },
+      0: (response) => {  // connection was interrupted
+        let timeBeforeError = (new Date().getTime() - callTime) / 1000;
+        // here we try to detect if the server timed out; as it should take
+        // about 2 minutes (120s), we check a window of 3 seconds around that
+        // value (120 +- 3 seconds).
+        if (Math.abs(timeBeforeError - 120) < 3) {  // server timed out
+          ping();
+        }
+      }
+    }, "", true);
+  } else if (debug) {
+    throw 'Trying to ping while no channel is joined!';
+  }
+}
+
 setSubmitEvent("form__login", (event) => {
   retrieveToken(
     event.target.querySelector("input:nth-of-type(1)").value,
@@ -101,8 +144,7 @@ setSubmitEvent("form__join-channel", (event) => {
 }, true);
 
 setSubmitEvent("chat__form", (event) => {
-  sendMessage(htmlEscape(event.target.querySelector("input").value),
-    retrieveMessages);  //TODO: remove this callback whith pining!
+  sendMessage(htmlEscape(event.target.querySelector("input").value));
 }, false);
 
 setSubmitEvent("form__create-channel", (event) => {
@@ -130,4 +172,5 @@ document.getElementById("sidebar__account__logout").addEventListener("click",
 resetChatView();
 swapDisplayedPanels(false);
 loadCookies(successfulLogin);
-updateSessions();
+setTimeout(updateSessions, 1000 * 3);
+setInterval(updateSessions, 1000 * 60 * 5);

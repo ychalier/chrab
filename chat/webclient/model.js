@@ -36,6 +36,11 @@ function register(username, password, callback=null) {
 }
 
 function resetToken() {
+  if (currentPing) {
+    currentPing.onreadystatechange = function() {};
+  }
+  lastMessageTimestamp = 0;
+  currentPing = null;
   token = null;
   login = null;
   deleteAllCookies();

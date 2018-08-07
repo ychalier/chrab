@@ -53,8 +53,11 @@ function sendRequest(method, url, headers, callbacks,
       } else if (xhttp.status == 403 && refreshIfUnauthorized
         && !xhttp.responseText.startsWith("Wrong channel password")) {
         refreshToken(() => {
-          headers["Authorization"] = "Bearer " + token.access_token;
-          sendRequest(method, url, headers, callbacks, body, false);
+          headers["Authorization"] = "Bearer " + token.refresh_token;
+          let xhttp = sendRequest(method, url, headers, callbacks, body, false);
+          if (url.startsWith("/ping/")) {
+            currentPing = xhttp;
+          }
         });
       } else if (xhttp.status == 403
         && !xhttp.responseText.startsWith("Wrong channel password")) {
