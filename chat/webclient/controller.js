@@ -114,7 +114,7 @@ function ping() {
       200: (response) => {  // a new message has been posted, so we update and
         retrieveMessages(); // re-send a ping for the next message(s)
         ping();
-        // notify(); TODO: uncomment that when ready
+        notify();
       },
       0: (response) => {  // connection was interrupted
         let timeBeforeError = (new Date().getTime() - callTime) / 1000;
@@ -128,6 +128,41 @@ function ping() {
     }, "", true);
   } else if (debug) {
     throw 'Trying to ping while no channel is joined!';
+  }
+}
+
+function blink() {
+  document.title = "*new message*";
+  setTimeout(function() {
+    document.title = "chrab";
+  }, 1000);
+}
+
+function playSound(filename, playerDivId) {
+  var audio = new Audio(filename);
+  audio.play();
+}
+
+function notify() {
+  if (!isActive) {
+    playSound('ahbus.mp3', 'audio')
+    blink();
+    notificationInterval = setInterval(blink, 2100);
+  } else if (debug) {
+    throw "Tried to notify.";
+  }
+}
+
+window.onblur = function(event) {
+  isActive = false;
+}
+
+window.onfocus = function(event) {
+  isActive = true;
+  if (notificationInterval) {
+    clearInterval(notificationInterval);
+    notificationInterval = null;
+    document.title = "chrab";
   }
 }
 

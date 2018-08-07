@@ -11,4 +11,7 @@ var lastMessageTimestamp;
 var modal;  // currently displayed modal window
 var lastAuthor;  // author of lastly displayed message
 
+/***** CONTROLLER *****/
 var currentPing;
+var isActive = true;
+var notificationInterval;
