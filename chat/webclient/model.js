@@ -27,7 +27,12 @@ function bearerAuthorizationHeader() {
 
 function resetToken() {
   token = null;
+  login = null;
   deleteAllCookies();
+  resetChatView();
+  resetChannelList();
+  swapDisplayedPanels(false);
+  if (modal) hideModal();
 }
 
 function retrieveToken(username, password, callback=null) {
@@ -70,6 +75,7 @@ function refreshToken(callback) {
      unauthorized.
    */
   if ('refresh_token' in token) {
+    console.log(token.refresh_token);
     sendRequest('GET', '/refresh-token',
                 {'Authorization': 'Bearer ' + token.refresh_token}, {
       200: (response) => {

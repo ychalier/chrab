@@ -45,15 +45,15 @@ function joinChannel(channelName, isProtected) {
     form.setAttribute("channel", channelName);
     showModal(form);
   } else {
-    resetChatView();
     selectedChannel = channelName;
-    setJoinedChannelView();
-    retrieveMessages();
+    retrieveMessages(channelName);
   }
 }
 
 function retrieveMessages() {
   getMessages((messages) => {
+    resetChatView();
+    setJoinedChannelView();
     for (let i = 0; i < messages.length; i++) {
       let {username, content, t} = messages[i];
       addViewMessage(login == username, content, datetimeToString(t), username);

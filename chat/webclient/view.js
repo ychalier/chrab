@@ -75,7 +75,7 @@ function initModals() {
 
 function setModal(buttonId, modalId) {
   document.getElementById(buttonId).addEventListener("click", (event) => {
-    showModal(modalId);
+    showModal(document.getElementById(modalId));
   });
 }
 
@@ -207,6 +207,18 @@ function unlockChatView() {
   form.getElementsByTagName("button")[0].removeAttribute("disabled");
 }
 
+function setConnectionStatusColor(status) {
+  let color;
+  if (status.startsWith("2")) {
+    color = "green";
+  } else if (status.startsWith("4")) {
+    color = "orange";
+  } else {
+    color = "red";
+  }
+  document.getElementById("sidebar__account__identity__details__connection").style.backgroundColor = color;
+}
+
 /***************************/
 /***** EVENT LISTENERS *****/
 /***************************/
@@ -218,7 +230,7 @@ window.addEventListener("keyup", function(event) {
   }
 }, false);
 
-setModal("sidebar__account__login", "form_login");
+setModal("sidebar__account__login", "form__login");
 setModal("sidebar__account__register", "form__register");
 setModal("sidebar__create-channel__button", "form__create-channel");
 

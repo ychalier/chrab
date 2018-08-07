@@ -76,11 +76,12 @@ body {
 }
 
 #sidebar__account__identity__details__connection {
-  display: block;
-  background: green;
-  border-radius: 50% 50%;
   width: 5px;
   height: 5px;
+  display: block;
+  background: green;
+  transition: .5s ease;
+  border-radius: 50% 50%;
 }
 
 #sidebar__account__identity__details__sessions {

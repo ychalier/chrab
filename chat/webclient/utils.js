@@ -47,14 +47,17 @@ function sendRequest(method, url, headers, callbacks,
   }
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4) {
+      setConnectionStatusColor(xhttp.status.toString());
       if (xhttp.status in callbacks) {
         callbacks[xhttp.status](xhttp.responseText);
-      } else if (xhttp.status == 403 && refreshIfUnauthorized) {
+      } else if (xhttp.status == 403 && refreshIfUnauthorized
+        && !xhttp.responseText.startsWith("Wrong channel password")) {
         refreshToken(() => {
           headers["Authorization"] = "Bearer " + token.access_token;
           sendRequest(method, url, headers, callbacks, body, false);
         });
-      } else if (xhttp.status == 403) {
+      } else if (xhttp.status == 403
+        && !xhttp.responseText.startsWith("Wrong channel password")) {
         resetToken();
       } else if (debug) {
         throw xhttp.status + "\t" + xhttp.responseText;
