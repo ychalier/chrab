@@ -1,3 +1,28 @@
+const COLORS = [
+  "#D32F2F",  // red
+  "#536DFE",  // indigo
+  "#388E3C",  // green
+  "#E64A19",  // deep orange
+  "#5D4037",  // brown
+  "#455A64",  // blue grey
+  "#0097A7",  // cyan
+  "#0288D1",  // light blue
+  "#00796B",  // teal
+  "#1976D2",  // blue
+  "#C2185B",  // pink
+  "#7B1FA2",  // purple
+  "#512DA8"   // deep purple
+];
+
+function colorize(username) {
+  const length = COLORS.length;
+  let index = 0;
+  for (let i = 0; i < username.length; i++) {
+    index = (index + (i + 1) * username.charCodeAt(i)) % length;
+  }
+  return COLORS[index];
+}
+
 /****************************/
 /***** CONTENT SWAPPING *****/
 /****************************/
@@ -138,10 +163,12 @@ function addViewMessage(self, body, time, author) {
   }
   node.removeAttribute("style");
   node.removeAttribute("id");
-  node.getElementsByClassName("chat__messages__wrapper__time")[0].innerHTML
-    = time;
-  node.getElementsByClassName("chat__messages__wrapper__body")[0].innerHTML
-    = body;
+  node.querySelector(".chat__messages__wrapper__time").innerHTML = time;
+  node.querySelector(".chat__messages__wrapper__body").innerHTML = body;
+  if (!self) {
+    node.querySelector(".chat__messages__wrapper__body")
+      .style.backgroundColor = colorize(author);
+  }
   parent.appendChild(node);
   parent.scrollTop = parent.scrollHeight;
   lastAuthor = author;
