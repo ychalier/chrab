@@ -1,6 +1,8 @@
 # webclient
 
-This is a simple HTML/JS client that is supposed to work with the [Node server](../) from this repo. All scripts are well commented in [script.js](script.js), so you can get inspiration for your own client from that. In a nutshell, here is how it works:
+Check it out on [https://srabs.chalier.fr/webclient/](https://srabs.chalier.fr/webclient/)
+
+This is a simple HTML/JS client that is supposed to work with the [Node server](../) from this repo. It follows a sort of MVC structure, with [controller.js](controller.js), [model.js](model.js) and [view.js](view.js), so you can get inspiration for your own client from that. In a nutshell, here is how it works:
 
  1. **Login phase:** retrieves a token from a username and a password
  2. **Channel fetch:** when a token is retrieved, let the user choose from all channels available on the server
