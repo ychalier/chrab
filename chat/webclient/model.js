@@ -140,5 +140,11 @@ function postChannel(name, delay, passwd, callback=null) {
   if (passwd != "") json["passwd"] = passwd;
   sendRequest("POST", "/create-channel", bearerAuthorizationHeader(), {
     201: (response) => { if (callback) callback(); }
-  }, JSON.stringify(json));
+  }, JSON.stringify(json), true);
+}
+
+function deleteChannel(name, callback=null) {
+  sendRequest("DELETE", "/channel/" + name, bearerAuthorizationHeader(), {
+    200: (response) => { if (callback) callback(); }
+  }, "", true);
 }

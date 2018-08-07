@@ -32,7 +32,7 @@ function fetchChannels() {
       let {name, delay, protected, creator} = channels[i];
       addViewChannel(name, durationToString(delay), protected, login == creator,
         (event) => { joinChannel(name, protected) },
-        (event) => {  });  //TODO: delete channel if owned
+        (event) => { deleteChannel(name, fetchChannels) });
     }
   });
 }
