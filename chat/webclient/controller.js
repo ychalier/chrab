@@ -102,6 +102,10 @@ setSubmitEvent("form__create-channel", (event) => {
   );
 }, true);
 
+document.getElementById("sidebar__account__logout").addEventListener("click",
+  function(event) {
+    logout();
+  });
 
 resetChatView();
 swapDisplayedPanels(false);
