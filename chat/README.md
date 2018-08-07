@@ -24,7 +24,7 @@ See [package-lock.json](package-lock.json) for full details. Two main packages a
 method | url | description
 --- | --- | ---
 GET  | / | Hello, world!
-GET | /retrieve-token  | Request an access token and a refresh token
+GET | [/retrieve-token](#head)  | Request an access token and a refresh token
 GET  | /validate-token  | Check if an access token is valid
 GET  | /refresh-token  | Send a new access token
 GET  | /logout | Revokes all tokens linked to a user
@@ -50,6 +50,7 @@ code | possible mistake
 403  | request authorization is invalid (wrong login or password) or token has expired
 
 ---
+<a name="head"></a>
 
     POST /register
 
