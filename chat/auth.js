@@ -1,8 +1,11 @@
 const sqlite3 = require('sqlite3').verbose();
 const crypto = require('crypto');
+const fs = require('fs');
 
 var expires = 3600;
 const maxSimultaneousConn = 3;
+
+const registerToken = fs.readFileSync('register.token').toString();
 
 function basicReply(res, statusCode, message='') {
   /* Set the response status codes, writes a message if one is given, and
@@ -80,7 +83,12 @@ function register(req, res, body) {
   const { headers, method, url } = req;
 
   let credentials = JSON.parse(body);
-  if ('login' in credentials && 'passwd' in credentials) {
+  if ('login' in credentials && 'passwd' in credentials
+    && 'authorization' in headers) {
+    if (headers['authorization'].split(' ')[1] != registerToken) {
+      basicReply(res, 403, "Invalid registration token");
+      return;
+    }
 
     // connecting to databse
     let db = new sqlite3.Database('chat.db', (err) => {

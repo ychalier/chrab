@@ -194,7 +194,8 @@ setSubmitEvent("form__create-channel", (event) => {
 setSubmitEvent("form__register", (event) => {
   let u = htmlEscape(event.target.querySelector("input:nth-of-type(1)").value);
   let p = event.target.querySelector("input:nth-of-type(2)").value;
-  register(u, p, () => {
+  let t = event.target.querySelector("input:nth-of-type(3)").value;
+  register(u, p, t, () => {
     retrieveToken(u, p, successfulLogin);
   });
 }, true);

@@ -63,9 +63,11 @@ You may check this [Postman scenario](https://www.getpostman.com/collections/4db
 
 Register a new user account. Username must be unique, or an error will be raised. Password is hashed before storage.
 
+The registration token must be sent. It must match the content of a file register.token, placed in the same directory as server.js. Use this mechanism to prevent odd users from registering.
+
 ##### request
 
- - **headers ─** nothing
+ - **headers ─** HTTP Bearer Auth with registration token
  - **body ─** JSON object with fields `login` and `passwd`
 
 ##### response

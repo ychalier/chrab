@@ -25,12 +25,15 @@ function bearerAuthorizationHeader() {
   }
 }
 
-function register(username, password, callback=null) {
+function register(username, password, registerToken, callback=null) {
   let credentials = {
     "login": username,
     "passwd": password
   }
-  sendRequest("POST", "/register", {}, {
+  let headers = {
+    "authorization": "Bearer " + registerToken
+  }
+  sendRequest("POST", "/register", headers, {
     201: (response) => { if (callback) callback(); }
   }, JSON.stringify(credentials), false);
 }
