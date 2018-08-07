@@ -1,17 +1,16 @@
-var modalShown;  // null if none is shown
+/****************************/
+/***** CONTENT SWAPPING *****/
+/****************************/
 
-var accountPanelState = false;  // true when logged in
-function setAccountPanelState(state) {
-  accountPanelState = state;
-  displayElementsFromState(state,
-    document.getElementById("account-panel-top"));
-  displayElementsFromState(state,
-    document.getElementById("account-panel-bottom"));
-  displayElementsFromState(state,
-    document.getElementById("create-channel-panel"));
+function storeDisplayProperties() {
+  let array = document.querySelectorAll(".state-true, .state-false");
+  for (let i = 0; i < array.length; i++) {
+    array[i].setAttribute("display",
+      window.getComputedStyle(array[i], null).getPropertyValue("display"));
+  }
 }
 
-function displayElementsFromState(state, parent) {
+function swap(state, parent) {
   /* parent is a DOM element */
   let childs = parent.childNodes;
   for (let i = 0; i < childs.length; i++) {
@@ -24,48 +23,19 @@ function displayElementsFromState(state, parent) {
   }
 }
 
-function storeDisplayProperties() {
-  let array = document.querySelectorAll(".state-true, .state-false");
-  for (let i = 0; i < array.length; i++) {
-    array[i].setAttribute("display",
-      window.getComputedStyle(array[i], null).getPropertyValue("display"));
-  }
+function swapDisplayedPanels(state) {
+  swap(state, document.getElementById("sidebar__account__top"));
+  swap(state, document.getElementById("sidebar__account__bottom"));
+  swap(state, document.getElementById("sidebar__create-channel"));
 }
 
-function appendChannel(name, delay, isProtected, isOwned,
-    nameCallback=null, trashCallback=null) {
-  let node = document.getElementById("channel-wrapper-example").cloneNode(true);
-  let parent = document.getElementById("channel-list-panel");
-  node.removeAttribute("style");
-  node.removeAttribute("id");
-  node.getElementsByClassName("channel-name")[0].innerHTML = name;
-  node.getElementsByClassName("channel-delay")[0].innerHTML = delay;
-  if (!isProtected) {
-    node.getElementsByClassName("channel-lock")[0]
-      .setAttribute("style", "display:none");
-  }
-  if (!isOwned) {
-    node.getElementsByClassName("channel-trash")[0]
-      .setAttribute("style", "display:none");
-  }
-  if (nameCallback) {
-    node.getElementsByClassName("channel-name")[0]
-      .addEventListener("click", nameCallback);
-  }
-  if (trashCallback) {
-    node.getElementsByClassName("channel-trash")[0]
-      .addEventListener("click", trashCallback);
-  }
-  parent.appendChild(node);
-  let divider = document.createElement("div");
-  divider.className = "divider";
-  parent.appendChild(divider);
-  return node;
-}
+/***************************/
+/***** MODAL UTILITIES *****/
+/***************************/
 
 function showModal(element) {
-  if (modalShown) {
-    hideModal(modalShown);
+  if (modal) {
+    hideModal(modal);
     setTimeout(function() {
       showModal(element);
     }, 10);
@@ -75,19 +45,19 @@ function showModal(element) {
   setTimeout(function() {
     element.style.opacity = 1;
   }, 10);
-  modalShown = element;
+  modal = element;
 }
 
 function hideModal(element=null) {
-  if (element == null && modalShown != null) element = modalShown;
+  if (element == null && modal != null) element = modal;
   element.style.opacity = 0;
   setTimeout(function() {
     element.removeAttribute("style");
   }, 200);
-  modalShown = null;
+  modal = null;
 }
 
-function setupModalWindows() {
+function initModals() {
   let array = document.getElementsByClassName("modal");
   for (let i = 0; i < array.length; i++) {
     array[i].addEventListener("click", function(event) {
@@ -103,42 +73,53 @@ function setupModalWindows() {
   }
 }
 
-function resetChat() {
-  let parent = document.getElementById("message-panel");
-  let childs = parent.childNodes;
-  for (let i = 0; i < childs.length; i++) {
-    if ("hasAttribute" in childs[i] && !childs[i].hasAttribute("id")) {
-      parent.removeChild(childs[i]);
-    }
-  }
-  document.getElementById("channel-name").innerHTML = "Ø";
-  document.querySelector("#message-form > input").setAttribute("disabled", "");
+function setModal(buttonId, modalId) {
+  document.getElementById(buttonId).addEventListener("click", (event) => {
+    showModal(modalId);
+  });
 }
 
-function resetChannelsViews() {
-  let parent = document.getElementById("channel-list-panel");
-  let childs = parent.childNodes;
-  for (let i = 0; i < childs.length; i++) {
-    if (childs[i].className && !childs[i].hasAttribute("id")) {
-      parent.removeChild(childs[i]);
-    }
+/****************************/
+/***** CONTENT ADDITION *****/
+/****************************/
+
+function addViewChannel(name, delay, isProtected, isOwned,
+    nameCallback=null, trashCallback=null) {
+  let node = document.getElementById("example__sidebar__channels__wrapper").cloneNode(true);
+  let parent = document.getElementById("sidebar__channels");
+  node.removeAttribute("style");
+  node.removeAttribute("id");
+  node.getElementsByClassName("sidebar__channels__wrapper__name")[0].innerHTML = name;
+  node.getElementsByClassName("sidebar__channels__wrapper__delay")[0].innerHTML = delay;
+  if (!isProtected) {
+    node.getElementsByClassName("sidebar__channels__wrapper__lock")[0]
+      .setAttribute("style", "display:none");
   }
+  if (!isOwned) {
+    node.getElementsByClassName("sidebar__channels__wrapper__trash")[0]
+      .setAttribute("style", "display:none");
+  }
+  if (nameCallback) {
+    node.getElementsByClassName("sidebar__channels__wrapper__name")[0]
+      .addEventListener("click", nameCallback);
+  }
+  if (trashCallback) {
+    node.getElementsByClassName("sidebar__channels__wrapper__trash")[0]
+      .addEventListener("click", trashCallback);
+  }
+  parent.appendChild(node);
+  let divider = document.createElement("div");
+  divider.className = "divider";
+  parent.appendChild(divider);
+  return node;
 }
 
-function cleanForm(form) {
-  let inputs = form.getElementsByTagName("input");
-  for (let i = 0; i < inputs.length; i++) {
-    inputs[i].value = "";
-  }
-}
-
-var lastAuthor;
-function appendMessage(self, body, time, author) {
-  let parent = document.getElementById("message-panel");
+function addViewMessage(self, body, time, author) {
+  let parent = document.getElementById("chat__messages");
   if (lastAuthor && author && lastAuthor == author) {
-    parent.lastChild.className = parent.lastChild.className + " message-center";
+    parent.lastChild.className = parent.lastChild.className + "--mid";
   } else if (lastAuthor && author && !self) {
-    let authorNode = document.getElementById("message-author-example")
+    let authorNode = document.getElementById("example__chat__messages__author")
                       .cloneNode(true);
     authorNode.removeAttribute("style");
     authorNode.removeAttribute("id");
@@ -147,48 +128,103 @@ function appendMessage(self, body, time, author) {
   }
   let node;
   if (self) {
-    node = document.getElementById("message-wrapper-right-example")
+    node = document.getElementById("example__chat__messages__wrapper--right")
             .cloneNode(true);
   } else {
-    node = document.getElementById("message-wrapper-left-example")
+    node = document.getElementById("example__chat__messages__wrapper--left")
             .cloneNode(true);
   }
   node.removeAttribute("style");
   node.removeAttribute("id");
-  node.getElementsByClassName("message-time")[0].innerHTML = time;
-  node.getElementsByClassName("message-body")[0].innerHTML = body;
+  node.getElementsByClassName("chat__messages__wrapper__time")[0].innerHTML
+    = time;
+  node.getElementsByClassName("chat__messages__wrapper__body")[0].innerHTML
+    = body;
   parent.appendChild(node);
   parent.scrollTop = parent.scrollHeight;
   lastAuthor = author;
 }
 
-function resetView() {
-  setAccountPanelState(false);
-  resetChat();
-  resetChannelsViews();
+function setLoggedInView() {
+  document.getElementById("sidebar__account__identity__username").innerHTML
+    = login;
+  swapDisplayedPanels(true);
 }
 
-storeDisplayProperties();
-setupModalWindows();
+function setJoinedChannelView() {
+  document.getElementById("chat__info__channel").innerHTML = selectedChannel;
+  unlockChatView();
+}
+
+/********************/
+/***** CLEANING *****/
+/********************/
+
+function removeUnidentifiedChildren(parent) {
+  let childs = parent.childNodes;
+  let toDelete = [];
+  for (let i = 0; i < childs.length; i++) {
+    if (!("hasAttribute" in childs[i] && childs[i].hasAttribute("id"))) {
+      toDelete.push(childs[i]);
+    }
+  }
+  for (let i = 0; i < toDelete.length; i++) {
+    parent.removeChild(toDelete[i]);
+  }
+}
+
+function clearForm(form) {
+  let inputs = form.getElementsByTagName("input");
+  for (let i = 0; i < inputs.length; i++) {
+    inputs[i].value = "";
+  }
+}
+
+function clearChannelsListView() {
+  removeUnidentifiedChildren(document.getElementById("sidebar__channels"));
+}
+
+function clearChatView() {
+  removeUnidentifiedChildren(document.getElementById("chat__messages"));
+}
+
+function resetChatView() {
+  clearChatView();
+  lockChatView();
+  document.getElementById("chat__info__channel").innerHTML = "Ø";
+}
+
+function lockChatView() {
+  let form = document.getElementById("chat__form");
+  form.getElementsByTagName("input")[0].setAttribute("disabled", "");
+  form.getElementsByTagName("button")[0].setAttribute("disabled", "");
+  clearForm(form);
+}
+
+function unlockChatView() {
+  let form = document.getElementById("chat__form");
+  form.getElementsByTagName("input")[0].removeAttribute("disabled");
+  form.getElementsByTagName("button")[0].removeAttribute("disabled");
+}
+
+/***************************/
+/***** EVENT LISTENERS *****/
+/***************************/
 
 window.addEventListener("keyup", function(event) {
   let keyCode = event.keyCode;
-  if (keyCode == 27 && modalShown != null) {  // ESCAPE
+  if (keyCode == 27 && modal != null) {  // ESCAPE
     hideModal();
   }
 }, false);
 
-document.getElementById("button-login").addEventListener("click",
-(event) => {
-  showModal(document.getElementById("login-form"));
-});
+setModal("sidebar__account__login", "form_login");
+setModal("sidebar__account__register", "form__register");
+setModal("sidebar__create-channel__button", "form__create-channel");
 
-document.getElementById("button-register").addEventListener("click",
-(event) => {
-  showModal(document.getElementById("register-form"));
-});
+/**************************/
+/***** INITIALISATION *****/
+/**************************/
 
-document.getElementById("button-create-channel").addEventListener("click",
-(event) => {
-  showModal(document.getElementById("create-channel-form"));
-});
+storeDisplayProperties();
+initModals();

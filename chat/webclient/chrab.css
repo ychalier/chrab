@@ -23,7 +23,7 @@ body {
   justify-content: center;
 }
 
-#content {
+#wrapper {
   width: auto;
   margin: auto;
   height: 90vh;
@@ -35,13 +35,13 @@ body {
   border-bottom: 4px solid white;
 }
 
-#chat-wrapper {
+#chat {
   width: 58.7vh;
   display: flex;
   flex-direction: column;
 }
 
-#sidebar-wrapper {
+#sidebar {
   display: flex;
   flex-direction: column;
   width: 200px;
@@ -49,25 +49,25 @@ body {
   background: white;
 }
 
-#account-panel {
+#sidebar__account {
   text-align: center;
   margin: 16px 0 16px 0;
 }
 
-#account-panel > div {
+#sidebar__account > div {
   margin: 8px 0 8px 0;
   width: 200px;
   height: 33px;
 }
 
-#user-panel {
+#sidebar__account__identity {
+  height: 20px;
   display: flex;
   flex-direction: row;
   justify-content: center;
-  height: 20px;
 }
 
-#user-info {
+#sidebar__account__identity__details {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -75,7 +75,7 @@ body {
   margin: 5px 0 0 2px;
 }
 
-#connection-status {
+#sidebar__account__identity__details__connection {
   display: block;
   background: green;
   border-radius: 50% 50%;
@@ -83,29 +83,29 @@ body {
   height: 5px;
 }
 
-#current-sessions {
+#sidebar__account__identity__details__sessions {
   color: #AAA;
   font-size: 10px;
 }
 
-#username {
+#sidebar__account__identity__username {
   color: black;
   font-size: 20px;
   text-transform: uppercase;
   font-weight: bold;
 }
 
-#channel-list-panel {
+#sidebar__channels {
   height: 100%;
   overflow: scroll;
 }
 
-#create-channel-panel {
+#sidebar__create-channel {
   text-align: center;
   margin: 8px 0 8px 0;
 }
 
-.btn-black {
+.button {
   border: none;
   margin: auto;
   color: white;
@@ -119,21 +119,21 @@ body {
   text-transform: uppercase;
 }
 
-.btn-black:hover {
+.button:hover {
   background: #888;
 }
 
-.divider, .divider-lg {
+.divider, .divider--thick {
   width: 100%;
   height: 1px;
   background: #AAA;
 }
 
-.divider-lg {
+.divider--thick {
   height: 3px;
 }
 
-.channel-wrapper {
+.sidebar__channels__wrapper {
   position: relative;
   display: flex;
   flex-direction: row;
@@ -141,7 +141,7 @@ body {
   width: 100%;
 }
 
-.channel-name {
+.sidebar__channels__wrapper__name {
   color: black;
   font-size: 18px;
   padding: 8px 2px 8px 8px;
@@ -152,18 +152,18 @@ body {
   word-wrap: break-word;
 }
 
-.channel-name:hover {
+.sidebar__channels__wrapper__name:hover {
   color: #AAA;
 }
 
-.channel-delay {
+.sidebar__channels__wrapper__delay {
   padding-top: 14px;
   color: #AAA;
   font-size: 10px;
   margin-left: -3px;
 }
 
-.channel-wrapper img {
+.sidebar__channels__wrapper img {
   padding-top: 13px;
   width: 16px;
   height: 16px;
@@ -171,46 +171,46 @@ body {
   margin: 0 2px 0 2px;
 }
 
-.channel-trash {
+.sidebar__channels__wrapper__trash {
   cursor: pointer;
   transition: .1s linear;
 }
 
-.channel-trash:hover {
+.sidebar__channels__wrapper__trash:hover {
   opacity: 1;
 }
 
-#message-panel {
+#chat__messages {
   overflow-y: scroll;
   height: 100%;
 }
 
-#channel-info {
+#chat__info {
   background: white;
   color: black;
   text-align: center;
   padding: 8px 0 8px 0;
 }
 
-#channel-info * {
+#chat__info * {
   color: black;
   font-size: 25px;
   font-weight: bold;
   margin: 0 8px 0 8px;
 }
 
-#channel-name {
+#chat__info__channel {
   color: white;
   background: black;
 }
 
-#message-form {
+#chat__form {
   display: flex;
   flex-direction: row;
   padding: 8px 0 8px 0;
 }
 
-#message-form > input[type="text"] {
+#chat__form__input {
   width: 100%;
   border: none;
   background: black;
@@ -218,7 +218,7 @@ body {
   font-size: 20px;
 }
 
-#message-form > button {
+#chat__form__button {
   padding: 0;
   width: 58px;
   height: 25px;
@@ -229,12 +229,12 @@ body {
   margin: 4px 8px 8px 8px;
 }
 
-#message-form > button:hover > span{
+#chat__form__button:hover > span{
   color: white;
   background: black;
 }
 
-#message-form > button > span{
+#chat__form__button > span{
   left: 0;
   top: -4px;
   color: black;
@@ -259,7 +259,7 @@ body {
   justify-content: center;
 }
 
-.modal-wrapper {
+.modal__wrapper {
   margin: auto;
   text-align: center;
 }
@@ -268,7 +268,7 @@ body {
   color: black;
 }
 
-.modal .btn-black {
+.modal .button {
   margin-top: 12px;
 }
 
@@ -284,63 +284,73 @@ body {
   margin: 8px auto 8px auto;
 }
 
-.message-wrapper {
+.chat__messages__wrapper--right, .chat__messages__wrapper--left, .chat__messages__wrapper--right--mid, .chat__messages__wrapper--left--mid {
+  height: auto;
   display: flex;
   flex-direction: row;
-  height: auto;
-  justify-content: flex-end;
 }
 
-.left {
+.chat__messages__wrapper--left, .chat__messages__wrapper--left--mid {
   justify-content: flex-start;
 }
 
-.message-time-wrapper {
+.chat__messages__wrapper--right, .chat__messages__wrapper--right--mid {
+  justify-content: flex-end;
+}
+
+.chat__messages__wrapper__time-wrapper {
   display: flex;
   height: inherit;
-  margin-left: 20%;
   flex-direction: column;
   justify-content: center;
 }
 
-.message-time {
+.chat__messages__wrapper__time {
   color: #AAA;
   font-size: 10px;
 }
 
-.left .message-time-wrapper {
-  margin-left: 0;
+.chat__messages__wrapper--right .left .chat__messages__wrapper__time {
+  margin-left: 20%;
+}
+
+
+.chat__messages__wrapper--left .left .chat__messages__wrapper__time {
   margin-right: 20%;
 }
 
-.message-body {
-  background: white;
-  color: black;
-  border-radius: 10px 0px 10px 10px;
+.chat__messages__wrapper__body {
+  margin: 8px;
   padding: 10px;
   font-size: 18px;
-  margin: 8px;
   transition: border-radius .3s linear;
 }
 
-.left .message-body {
-  border-radius: 0 10px 10px 10px;
-  background: crimson;
-  color: white;
+.chat__messages__wrapper--right .chat__messages__wrapper__body, .chat__messages__wrapper--right--mid .chat__messages__wrapper__body {
+  color: black;
+  background: white;
+  border-radius: 10px 0px 10px 10px;
 }
 
-.message-center .message-body {
+.chat__messages__wrapper--left .chat__messages__wrapper__body,
+.chat__messages__wrapper--left--mid .chat__messages__wrapper__body {
+  color: white;
+  background: crimson;
+  border-radius: 0px 10px 10px 10px;
+}
+
+.chat__messages__wrapper--right--mid .chat__messages__wrapper__body {
   border-radius: 10px 0 0 10px;
   margin-bottom: 0;
 }
 
-.left.message-center .message-body {
+.chat__messages__wrapper--left--mid .chat__messages__wrapper__body {
   border-radius: 0 10px 10px 0;
   margin-bottom: 0;
 }
 
-.message-author {
-  font-weight: bold;
+.chat__messages__author {
   font-size: 10px;
+  font-weight: bold;
   margin: 8px 0 -4px 8px;
 }

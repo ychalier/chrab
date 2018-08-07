@@ -8,91 +8,101 @@
     <title>chrab</title>
   </head>
   <body>
-    <div id="content">
-      <div id="chat-wrapper">
-        <div id="message-panel">
-          <div id="message-wrapper-right-example" class="message-wrapper right" style="display:none">
-            <div class="message-time-wrapper"><div class="message-time">hh:mm</div></div>
-            <div class="message-body">body</div>
+    <div id="wrapper">
+      <div id="chat">
+        <div id="chat__messages">
+          <div id="example__chat__messages__wrapper--right" class="chat__messages__wrapper--right" style="display:none">
+            <div class="chat__messages__wrapper__time-wrapper"><div class="chat__messages__wrapper__time">hh:mm</div></div>
+            <div class="chat__messages__wrapper__body">body</div>
           </div>
-          <div id="message-author-example" class="message-author" style="display:none">Author</div>
-          <div id="message-wrapper-left-example" class="message-wrapper left" style="display:none">
-            <div class="message-body">body</div>
-            <div class="message-time-wrapper"><div class="message-time">hh:mm</div></div>
+          <div id="example__chat__messages__author" class="chat__messages__author" style="display:none">Author</div>
+          <div id="example__chat__messages__wrapper--left" class="chat__messages__wrapper--left" style="display:none">
+            <div class="chat__messages__wrapper__body">body</div>
+            <div class="chat__messages__wrapper__time-wrapper"><div class="chat__messages__wrapper__time">hh:mm</div></div>
           </div>
         </div>
-        <div id="channel-info">
+        <div id="chat__info">
           <span>CHANNEL</span>
-          <span id="channel-name">channel-name</span>
+          <span id="chat__info__channel">sidebar__channels__wrapper__name</span>
         </div>
-        <form id="message-form">
-          <input type="text" placeholder="..."/>
-          <button><span>send</span></button>
+        <form id="chat__form">
+          <input id="chat__form__input" type="text" placeholder="..."/>
+          <button id="chat__form__button"><span>send</span></button>
         </form>
       </div>
-      <div id="sidebar-wrapper">
-        <div id="account-panel">
-          <div id="account-panel-top">
-            <button id="button-login" class="btn-black state-false">login</button>
-            <div id="user-panel" class="state-true">
-              <div id="username">username</div>
-              <div id="user-info">
-                <div id="connection-status"></div>
-                <div id="current-sessions">3</div>
+      <div id="sidebar">
+        <div id="sidebar__account">
+          <div id="sidebar__account__top">
+            <button id="sidebar__account__login" class="button state-false">login</button>
+            <div id="sidebar__account__identity" class="state-true">
+              <div id="sidebar__account__identity__username">username</div>
+              <div id="sidebar__account__identity__details">
+                <div id="sidebar__account__identity__details__connection"></div>
+                <div id="sidebar__account__identity__details__sessions">3</div>
               </div>
             </div>
           </div>
-          <div id="account-panel-bottom">
-            <button id="button-register" class="btn-black state-false">register</button>
-            <button class="btn-black state-true">logout</button>
+          <div id="sidebar__account__bottom">
+            <button id="sidebar__account__register" class="button state-false">register</button>
+            <button id="sidebar__account__logout" class="button state-true">logout</button>
           </div>
         </div>
-        <div class="divider-lg"></div>
-        <div id="channel-list-panel">
-          <div id="channel-wrapper-example" class="channel-wrapper" style="display:none">
-            <div class="channel-name">channel-name</div>
-            <img class="channel-clock" src="clock.png" />
-            <div class="channel-delay">1j</div>
-            <img class="channel-lock" src="lock_closed.png" />
-            <img class="channel-trash" src="trash.png" />
+        <div class="divider--thick"></div>
+        <div id="sidebar__channels">
+          <div id="example__sidebar__channels__wrapper" class="sidebar__channels__wrapper" style="display:none">
+            <div class="sidebar__channels__wrapper__name">sidebar__channels__wrapper__name</div>
+            <img class="sidebar__channels__wrapper__clock" src="clock.png" />
+            <div class="sidebar__channels__wrapper__delay">1j</div>
+            <img class="sidebar__channels__wrapper__lock" src="lock_closed.png" />
+            <img class="sidebar__channels__wrapper__trash" src="trash.png" />
           </div>
         </div>
-        <div id="create-channel-panel">
-          <button id="button-create-channel" class="btn-black state-true">create <br /> channel</button>
+        <div id="sidebar__create-channel">
+          <button id="sidebar__create-channel__button" class="button state-true">create <br /> channel</button>
         </div>
       </div>
     </div>
-    <form id="register-form" class="modal">
-      <div class="modal-wrapper">
+
+    <!---
+      *************
+      MODAL WINDOWS
+      *************
+    --->
+
+    <form id="form__register" class="modal">
+      <div class="modal__wrapper">
         <h1>register a new user</h1>
         <input type="text" placeholder="username" />
         <input type="password" placeholder="password" />
-        <button class="btn-black">register</button>
+        <button class="button">register</button>
       </div>
     </form>
-    <form id="login-form" class="modal">
-      <div class="modal-wrapper">
+    <form id="form__login" class="modal">
+      <div class="modal__wrapper">
         <input type="text" placeholder="username" />
         <input type="password" placeholder="password" />
-        <button class="btn-black">login</button>
+        <button class="button">login</button>
       </div>
     </form>
-    <form id="create-channel-form" class="modal">
-      <div class="modal-wrapper">
+
+    <form id="form__create-channel" class="modal">
+      <div class="modal__wrapper">
         <h1>create a channel</h1>
         <input type="text" placeholder="channel name" />
         <input type="password" placeholder="password (optional)" />
-        <button class="btn-black">create</button>
+        <button class="button">create</button>
       </div>
     </form>
-    <form id="join-channel-form" class="modal">
-      <div class="modal-wrapper">
+    <form id="form__join-channel" class="modal">
+      <div class="modal__wrapper">
         <h1>protected channel</h1>
         <input type="password" placeholder="channel password" />
-        <button class="btn-black">join</button>
+        <button class="button">join</button>
       </div>
     </form>
-    <script src="api.js"></script>
+    <script src="var.js"></script>
+    <script src="utils.js"></script>
+    <script src="model.js"></script>
     <script src="view.js"></script>
     <script src="controller.js"></script>
   </body>
