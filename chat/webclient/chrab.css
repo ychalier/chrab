@@ -87,6 +87,7 @@ body {
 #sidebar__account__identity__details__sessions {
   color: #AAA;
   font-size: 10px;
+  cursor: pointer;
 }
 
 #sidebar__account__identity__username {
@@ -354,4 +355,13 @@ body {
   font-size: 10px;
   font-weight: bold;
   margin: 8px 0 -4px 8px;
+}
+
+#modal__sessions table {
+  margin: 0 auto 0 auto;
+}
+
+#modal__sessions table * {
+  color: black;
+  text-align: left;
 }

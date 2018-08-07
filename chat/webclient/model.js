@@ -106,6 +106,12 @@ function refreshToken(callback) {
   }
 }
 
+function getSessions(callback) {
+  sendRequest("GET", "/list-sessions", bearerAuthorizationHeader(), {
+    200: (response) => { callback(JSON.parse(response)); }
+  }, "", true);
+}
+
 /***************************/
 /***** CHANNEL ACTIONS *****/
 /***************************/

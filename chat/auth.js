@@ -180,7 +180,7 @@ function requestToken(req, res, body) {
 
                       // delete old tokens
                       db.all('SELECT * FROM tokens WHERE username=(?) AND '
-                        + 'type="access" ORDER BY t', [rows[0].login],
+                        + 'type="refresh" ORDER BY t', [rows[0].login],
                         (err, tokens) => {
                           if (err) throw err;
                           for (let i = 0 ; i <

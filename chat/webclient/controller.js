@@ -67,6 +67,18 @@ function successfulLogin() {
   fetchChannels();
 }
 
+function updateSessions() {
+  getSessions((sessions) => {
+    clearSessions();
+    for (let i = 0; i < sessions.length; i++) {
+      let {t, agent} = sessions[i];
+      addViewSessions(t, agent);
+    }
+    document.getElementById("sidebar__account__identity__details__sessions")
+      .innerHTML = sessions.length.toString();
+  });
+}
+
 function setSubmitEvent(formId, callback, hide=false) {
   document.getElementById(formId).addEventListener("submit", function (event) {
     event.preventDefault();
@@ -118,3 +130,4 @@ document.getElementById("sidebar__account__logout").addEventListener("click",
 resetChatView();
 swapDisplayedPanels(false);
 loadCookies(successfulLogin);
+updateSessions();

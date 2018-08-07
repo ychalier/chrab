@@ -156,6 +156,19 @@ function setJoinedChannelView() {
   unlockChatView();
 }
 
+function addViewSessions(timestamp, agent) {
+  let parent = document.querySelector("#modal__sessions table");
+  let node = document.createElement("tr");
+  let deliveredOn = document.createElement("td");
+  let userAgent = document.createElement("td");
+  node.className = "table__row--session";
+  deliveredOn.innerHTML = (new Date(timestamp)).toString();
+  userAgent.innerHTML = htmlEscape(agent);
+  node.appendChild(deliveredOn);
+  node.appendChild(userAgent);
+  parent.appendChild(node);
+}
+
 /********************/
 /***** CLEANING *****/
 /********************/
@@ -219,6 +232,14 @@ function setConnectionStatusColor(status) {
   document.getElementById("sidebar__account__identity__details__connection").style.backgroundColor = color;
 }
 
+function clearSessions() {
+  let parent = document.querySelector("#modal__sessions table");
+  let nodes = document.getElementsByClassName("table__row--session");
+  for (let i = 0; i < nodes.length; i++) {
+    parent.removeChild(nodes[i]);
+  }
+}
+
 /***************************/
 /***** EVENT LISTENERS *****/
 /***************************/
@@ -233,6 +254,7 @@ window.addEventListener("keyup", function(event) {
 setModal("sidebar__account__login", "form__login");
 setModal("sidebar__account__register", "form__register");
 setModal("sidebar__create-channel__button", "form__create-channel");
+setModal("sidebar__account__identity__details__sessions", "modal__sessions");
 
 /**************************/
 /***** INITIALISATION *****/
