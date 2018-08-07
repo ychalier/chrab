@@ -133,3 +133,12 @@ function sendMessage(content, callback=null) {
     201: (response) => { if (callback) callback(); }
   }, content);
 }
+
+function postChannel(name, delay, passwd, callback=null) {
+  let json = { "name": name };
+  if (delay > 0) json["delay"] = delay;
+  if (passwd != "") json["passwd"] = passwd;
+  sendRequest("POST", "/create-channel", bearerAuthorizationHeader(), {
+    201: (response) => { if (callback) callback(); }
+  }, JSON.stringify(json));
+}

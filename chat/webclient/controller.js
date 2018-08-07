@@ -93,6 +93,15 @@ setSubmitEvent("chat__form", (event) => {
     retrieveMessages);  //TODO: remove this callback whith pining!
 }, false);
 
+setSubmitEvent("form__create-channel", (event) => {
+  postChannel(
+    htmlEscape(event.target.querySelector("input:nth-of-type(1)").value),
+    parseInt(event.target.querySelector("input:nth-of-type(2)").value),
+    event.target.querySelector("input:nth-of-type(3)").value,
+    fetchChannels
+  );
+}, true);
+
 
 resetChatView();
 swapDisplayedPanels(false);

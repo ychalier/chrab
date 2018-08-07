@@ -47,7 +47,6 @@ function createChannel(req, res, body) {
     }
 
     let regex = /^([\w-]+)$/gm;
-    console.log(json);
 
     let db = new sqlite3.Database('chat.db', (err) => {
       if (err) { errorReply(res, err); }
@@ -60,11 +59,15 @@ function createChannel(req, res, body) {
         } else if (!regex.exec(json['name'])){
           basicReply(res, 400, 'Invalid channel name.');
         } else {
+          let delay = defaultChannelDelay;
+          if ("delay" in json) {
+            delay = parseInt(json["delay"]);
+          }
           if ('passwd' in json) {
             let hash = crypto.createHmac('sha256', json['passwd'])
                              .digest('hex');
             db.run('INSERT INTO channels(name, delay, creator, passwd) VALUES '
-              + '(?, ?, ?, ?)', [json['name'], defaultChannelDelay, login,
+              + '(?, ?, ?, ?)', [json['name'], delay, login,
               hash], (err) => {
                 if (err) { errorReply(res, err); }
                 else {
@@ -73,7 +76,7 @@ function createChannel(req, res, body) {
               });
           } else {
             db.run('INSERT INTO channels(name, delay, creator) VALUES '
-             + '(?, ?, ?)', [json['name'], defaultChannelDelay, login],
+             + '(?, ?, ?)', [json['name'], delay, login],
              (err) => {
                 if (err) { errorReply(res, err); }
                 else {
