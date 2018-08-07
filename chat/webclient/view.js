@@ -184,7 +184,6 @@ function removeUnidentifiedChildren(parent) {
     }
   }
   for (let i = 0; i < toDelete.length; i++) {
-    console.log(toDelete[i]);
     parent.removeChild(toDelete[i]);
   }
 }

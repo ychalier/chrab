@@ -90,7 +90,6 @@ function refreshToken(callback) {
      unauthorized.
    */
   if ('refresh_token' in token) {
-    console.log(token.refresh_token);
     sendRequest('GET', '/refresh-token',
                 {'Authorization': 'Bearer ' + token.refresh_token}, {
       200: (response) => {
