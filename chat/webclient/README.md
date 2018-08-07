@@ -9,6 +9,10 @@ This is a simple HTML/JS client that is supposed to work with the [Node server](
  3. **Channel choice:** the user selects a channel, and all its messages are pulled and displayed. A ping request is sent to get notified when a new message will be posted.
  4. **Message posting:** then message posting becomes available. User sends text, and it is treated by the server. The ping notification gets a reply, so it fetches the so sent message and resend a new ping.
 
+**Keyboard shortcuts:**
+ - `ESCAPE`: exit modal window (does not clear the form if there is one)
+ - `Ctrl+E`: display video background
+
 Some points that are worth noting:
 
  - Usernames and message contents are HTML escaped to prevent injection.

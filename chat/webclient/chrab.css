@@ -375,6 +375,19 @@ body {
   user-select: none;
 }
 
+iframe {
+  top: -50vh;
+  left: -50vw;
+  z-index: -1;
+  opacity: .15;
+  display: none;
+  position: fixed;
+  min-width: 200vw;
+  min-height: 200vh;
+  user-select: none;
+  pointer-events: none;
+}
+
 @media(max-width: 650px) {
   body {
     padding-top: 20px;

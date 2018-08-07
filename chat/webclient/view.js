@@ -277,8 +277,12 @@ window.addEventListener("keyup", function(event) {
   let keyCode = event.keyCode;
   if (keyCode == 27 && modal != null) {  // ESCAPE
     hideModal();
+  } else if (keyCode == 69 && event.ctrlKey) {
+    document.querySelector("iframe").style.display = "block";
   }
 }, false);
+
+
 
 setModal("sidebar__account__login", "form__login");
 setModal("sidebar__account__register", "form__register");
@@ -288,6 +292,16 @@ setModal("sidebar__account__identity__details__sessions", "modal__sessions");
 /**************************/
 /***** INITIALISATION *****/
 /**************************/
+
+const videoCountInPlaylist = 12;
+let videoIndex = Math.floor((Math.random() * videoCountInPlaylist) + 1);
+
+document.querySelector("iframe").setAttribute("src",
+  "https://www.youtube.com/embed/videoseries"
+  + "?list=PL2ecHtEW1_x-Ah8O5Cv8vR8euOZXncoGA&frameborder=0&autoplay=1"
+  + "&controls=0&disablekb=1&color=white&cc_load_policy=0&fs=0&mute=1"
+  + "&iv_load_policy=3&loop=1&modestbranding=1&rel=0&showinfo=0"
+  + "&index=" + videoIndex);
 
 storeDisplayProperties();
 initModals();
