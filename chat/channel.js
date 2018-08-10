@@ -160,7 +160,7 @@ function postMessage(req, res, body) {
                 // notify all users
                 if (channel in pings) {
                   for (player in pings[channel]) {
-                    basicReply(pings[channel][player], 200);
+                    basicReply(pings[channel][player], 200, login);
                   }
                   delete pings[channel];
                 }
