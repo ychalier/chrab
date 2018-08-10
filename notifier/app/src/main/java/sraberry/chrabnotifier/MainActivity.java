@@ -29,8 +29,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final Context context = this;
         try {
-            final JSONObject token = new JSONObject(intent.getStringExtra("token"));
-            RequestSender.sendRequest(this, "https://srabs.chalier.fr/channels",
+            final JSONObject token =
+                    new JSONObject(intent.getStringExtra(LoginActivity.EXTRA_TOKEN));
+            RequestSender.sendRequest(this, RequestSender.HOST + "/channels",
                     RequestSender.bearerAuthAccess(token),
                     new Response.Listener<String>() {
                         @Override

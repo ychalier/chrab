@@ -8,7 +8,6 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -18,14 +17,16 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 public final class RequestSender {
+
+    public static final String HOST = "https://srabs.chalier.fr";
 
     static void sendRequest(Context context, final String url,
                                    final String authorization,
                                    Response.Listener<String> onResponse,
                                    Response.ErrorListener onError) {
+        Log.d("Request", url);
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest =
                 new StringRequest(Request.Method.GET, url, onResponse, onError) {
@@ -78,7 +79,7 @@ public final class RequestSender {
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest =
                 new StringRequest(Request.Method.GET,
-                        "https://srabs.chalier.fr/ping/" + channel, onResponse,
+                        HOST + "/ping/" + channel, onResponse,
                         new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {

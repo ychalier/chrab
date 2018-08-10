@@ -3,14 +3,15 @@ package sraberry.chrabnotifier;
 import android.content.Context;
 import android.util.Log;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class InternalStorageManager {
+class InternalStorageManager {
 
-    public static void write(Context context, String filename, String content) {
+    static void write(Context context, String filename, String content) {
         FileOutputStream outputStream;
         try {
             outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
@@ -21,7 +22,7 @@ public class InternalStorageManager {
         }
     }
 
-    private static boolean fileExists(Context context, String target) {
+    static boolean fileExists(Context context, String target) {
         String[] filenames = context.fileList();
         for (String filename : filenames) {
             if (filename.equals(target)) {
@@ -31,7 +32,7 @@ public class InternalStorageManager {
         return false;
     }
 
-    public static String read(Context context, String filename) {
+    static String read(Context context, String filename) {
         if (fileExists(context, filename)) {
             try {
                 FileInputStream fileInputStream = context.openFileInput(filename);
@@ -46,6 +47,24 @@ public class InternalStorageManager {
             }
         }
         return "";
+    }
+
+    static boolean deleteFile(Context context, String target) {
+        if (fileExists(context, target)) {
+            String dir = context.getFilesDir().getAbsolutePath();
+            File file = new File(dir, target);
+            boolean deleted = file.delete();
+            if (!deleted) {
+                Log.e("InternalStorage", "Could not delete file " + target);
+            } else {
+                Log.i("InternalStorage", target + " deleted.");
+            }
+            return deleted;
+        } else {
+            Log.w("InternalStorage",
+                    "Tried to delete " + target + " but the file does not exist.");
+            return false;
+        }
     }
 
 }
