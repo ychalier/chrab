@@ -23,9 +23,10 @@ public final class RequestSender {
     public static final String HOST = "https://srabs.chalier.fr";
 
     static void sendRequest(Context context, final String url,
-                                   final String authorization,
-                                   Response.Listener<String> onResponse,
-                                   Response.ErrorListener onError) {
+                            final String authorization,
+                            final String channelPassword,
+                            Response.Listener<String> onResponse,
+                            Response.ErrorListener onError) {
         Log.d("Request", url);
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest =
@@ -34,10 +35,18 @@ public final class RequestSender {
                     public Map<String, String> getHeaders() {
                         HashMap<String, String> params = new HashMap<>();
                         params.put("Authorization", authorization);
+                        params.put("chanpwd", channelPassword);
                         return params;
                     }
                 };
         queue.add(stringRequest);
+    }
+
+    static void sendRequest(Context context, final String url,
+                                   final String authorization,
+                                   Response.Listener<String> onResponse,
+                                   Response.ErrorListener onError) {
+        sendRequest(context, url, authorization, "", onResponse, onError);
     }
 
     static void sendRequest(Context context, final String url, final String authorization,

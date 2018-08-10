@@ -4,7 +4,6 @@ package sraberry.chrabnotifier;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,12 +14,12 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.concurrent.Callable;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -31,9 +30,12 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
     private String channelName;
     private String password;
     private boolean isProtected;
+    private String passwordFile;
+    private CheckBox checkBox;
 
     private void setChannelName(String channelName) {
         this.channelName = channelName;
+        this.passwordFile = channelName + ".pwd";
     }
 
     private void setProtected(boolean aProtected) {
@@ -48,6 +50,10 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         this.token = token;
     }
 
+    private String getPasswordFile() {
+        return passwordFile;
+    }
+
     public ChannelFragment() {
         // Required empty public constructor
     }
@@ -60,9 +66,10 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         f.setToken(token);
 
         if (isProtected) {
-            String password = InternalStorageManager.read(context, channelName + ".pwd");
+            String password = InternalStorageManager.read(context, f.getPasswordFile());
             if (!password.isEmpty()) {
                 f.setPassword(password);
+                f.checkChannelPassword();
             }
         }
 
@@ -78,7 +85,7 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         TextView textView = rootView.findViewById(R.id.textViewChannelName);
         textView.setText(channelName);
 
-        CheckBox checkBox = rootView.findViewById(R.id.checkbox);
+        checkBox = rootView.findViewById(R.id.checkbox);
         checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,7 +101,8 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             password = input.getText().toString();
-                            InternalStorageManager.write(rootView.getContext(), channelName + ".pwd", password);
+                            InternalStorageManager.write(rootView.getContext(),
+                                    passwordFile, password);
                         }
                     });
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -113,11 +121,10 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    RequestSender.ping(rootView.getContext(), token, channelName, password,
-                            new Response.Listener<String>() {
+                    checkChannelPassword(new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            Log.i("Ping", "New message on " + channelName);
+                            ping();
                         }
                     });
                 }
@@ -125,6 +132,49 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         });
 
         return rootView;
+    }
+
+    private void checkChannelPassword(Response.Listener<String> onResponse) {
+        final Context context = this.getContext();
+        RequestSender.sendRequest(context,
+                RequestSender.HOST + "/channel/" + channelName,
+                RequestSender.bearerAuthAccess(token), password, onResponse,
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        password = null;
+                        InternalStorageManager.deleteFile(context, passwordFile);
+                        checkBox.setChecked(false);
+                    }
+                });
+    }
+
+    private void checkChannelPassword() {
+        checkChannelPassword(new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                // nothing
+            }
+        });
+    }
+
+    private void ping() {
+        RequestSender.ping(this.getContext(), token, channelName, password,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.i("Ping", "New message on "
+                                + channelName + " from " + response);
+                        try {
+                            if (!token.getString("username").equals(response)) {
+                                //TODO: notify
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        ping();
+                    }
+                });
     }
 
 }

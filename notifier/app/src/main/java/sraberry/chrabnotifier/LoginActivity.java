@@ -23,6 +23,7 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
 
     public static final String EXTRA_TOKEN = "token";
+    public static final String EXTRA_USERNAME = "username";
     public static final String FILE_TOKEN = "token.json";
     public static final String FILE_CREDENTIALS = "credentials.json";
 
@@ -67,9 +68,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void gotoMainActivity(JSONObject token) {
+    private void gotoMainActivity(JSONObject token, String username) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(EXTRA_TOKEN, token.toString());
+        intent.putExtra(EXTRA_USERNAME, username);
         startActivity(intent);
     }
 
@@ -85,7 +87,11 @@ public class LoginActivity extends AppCompatActivity {
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-                                gotoMainActivity(token);
+                                try {
+                                    gotoMainActivity(token, token.getString("username"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }, new Response.ErrorListener() {
                             @Override
@@ -116,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void sendLoginRequest(String username, String password) {
+    private void sendLoginRequest(final String username, String password) {
         final Context context = this;
         Log.i("Login", username + ":" + password);
 
@@ -139,8 +145,9 @@ public class LoginActivity extends AppCompatActivity {
                         public void onResponse(String response) {
                             try {
                                 JSONObject token = new JSONObject(response);
+                                token.put("username", username);
                                 InternalStorageManager.write(context, FILE_TOKEN, response);
-                                gotoMainActivity(token);
+                                gotoMainActivity(token, username);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
