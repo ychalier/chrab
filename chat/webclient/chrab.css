@@ -380,7 +380,6 @@ iframe {
   left: -50vw;
   z-index: -1;
   opacity: .15;
-  display: none;
   position: fixed;
   min-width: 200vw;
   min-height: 200vh;
