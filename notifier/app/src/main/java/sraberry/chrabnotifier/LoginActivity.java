@@ -68,10 +68,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void gotoMainActivity(JSONObject token, String username) {
+    private void gotoMainActivity(JSONObject token) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(EXTRA_TOKEN, token.toString());
-        intent.putExtra(EXTRA_USERNAME, username);
         startActivity(intent);
     }
 
@@ -87,11 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-                                try {
-                                    gotoMainActivity(token, token.getString("username"));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                gotoMainActivity(token);
                             }
                         }, new Response.ErrorListener() {
                             @Override
@@ -146,8 +141,8 @@ public class LoginActivity extends AppCompatActivity {
                             try {
                                 JSONObject token = new JSONObject(response);
                                 token.put("username", username);
-                                InternalStorageManager.write(context, FILE_TOKEN, response);
-                                gotoMainActivity(token, username);
+                                InternalStorageManager.write(context, FILE_TOKEN, token.toString());
+                                gotoMainActivity(token);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

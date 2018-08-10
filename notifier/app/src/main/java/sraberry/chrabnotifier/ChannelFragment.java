@@ -69,7 +69,7 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
             String password = InternalStorageManager.read(context, f.getPasswordFile());
             if (!password.isEmpty()) {
                 f.setPassword(password);
-                f.checkChannelPassword();
+                f.checkChannelPassword(context);
             }
         }
 
@@ -86,47 +86,47 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         textView.setText(channelName);
 
         checkBox = rootView.findViewById(R.id.checkbox);
-        checkBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isProtected && password == null) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(rootView.getContext());
-                    builder.setTitle("Channel is protected. Enter password.");
-                    final EditText input = new EditText(rootView.getContext());
-                    input.setInputType(InputType.TYPE_CLASS_TEXT
-                            | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                    builder.setView(input);
-
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            password = input.getText().toString();
-                            InternalStorageManager.write(rootView.getContext(),
-                                    passwordFile, password);
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    builder.show();
-                }
-            }
-        });
 
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    checkChannelPassword(new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            ping();
-                        }
-                    });
+                    if (isProtected && password == null) {
+                        AlertDialog.Builder builder =
+                                new AlertDialog.Builder(rootView.getContext());
+                        builder.setTitle("Channel is protected. Enter password.");
+                        final EditText input = new EditText(rootView.getContext());
+                        input.setInputType(InputType.TYPE_CLASS_TEXT
+                                | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        builder.setView(input);
+
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                password = input.getText().toString();
+                                InternalStorageManager.write(rootView.getContext(),
+                                        passwordFile, password);
+                                checkBox.setChecked(false);
+                                checkChannelPassword(rootView.getContext(),
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                checkBox.setChecked(true);
+                                            }
+                                        });
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                                checkBox.setChecked(false);
+                            }
+                        });
+                        builder.show();
+                    } else {
+                        ping();
+                    }
                 }
             }
         });
@@ -134,23 +134,25 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         return rootView;
     }
 
-    private void checkChannelPassword(Response.Listener<String> onResponse) {
-        final Context context = this.getContext();
-        RequestSender.sendRequest(context,
-                RequestSender.HOST + "/channel/" + channelName,
-                RequestSender.bearerAuthAccess(token), password, onResponse,
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        password = null;
-                        InternalStorageManager.deleteFile(context, passwordFile);
-                        checkBox.setChecked(false);
-                    }
-                });
+    private void checkChannelPassword(final Context context, Response.Listener<String> onResponse) {
+        if (context != null) {
+            RequestSender.sendRequest(context,
+                    RequestSender.HOST + "/channel/" + channelName,
+                    RequestSender.bearerAuthAccess(token), password, onResponse,
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            password = null;
+                            InternalStorageManager.deleteFile(context, passwordFile);
+                            checkBox.setChecked(false);
+                        }
+                    });
+        }
+
     }
 
-    private void checkChannelPassword() {
-        checkChannelPassword(new Response.Listener<String>() {
+    private void checkChannelPassword(Context context) {
+        checkChannelPassword(context, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 // nothing
