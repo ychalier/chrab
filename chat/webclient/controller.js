@@ -86,15 +86,17 @@ function successfulLogin() {
 }
 
 function updateSessions() {
-  getSessions((sessions) => {
-    clearSessions();
-    for (let i = 0; i < sessions.length; i++) {
-      let {t, agent} = sessions[i];
-      addViewSessions(t, agent);
-    }
-    document.getElementById("sidebar__account__identity__details__sessions")
-      .innerHTML = sessions.length.toString();
-  });
+  if (token) {
+    getSessions((sessions) => {
+      clearSessions();
+      for (let i = 0; i < sessions.length; i++) {
+        let {t, agent} = sessions[i];
+        addViewSessions(t, agent);
+      }
+      document.getElementById("sidebar__account__identity__details__sessions")
+        .innerHTML = sessions.length.toString();
+    });
+  }
 }
 
 function setSubmitEvent(formId, callback, hide=false) {

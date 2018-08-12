@@ -40,6 +40,9 @@ function sendRequest(method, url, headers, callbacks,
   /* Sends a request; authorization goes in headers; callbacks is a dictionnary
      whom keys are status code returned by the server.
    */
+  if (debug) {
+    console.log("Send request:\t" + method + "\t" + url);
+  }
   let xhttp = new XMLHttpRequest();
   xhttp.open(method, url, true);
   for (let header in headers) {
