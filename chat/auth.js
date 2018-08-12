@@ -5,7 +5,8 @@ const fs = require('fs');
 var expires = 3600;
 const maxSimultaneousConn = 3;
 
-const registerToken = fs.readFileSync('register.token').toString();
+const registerToken = fs.readFileSync('register.token').toString()
+  .replace("\n", "").replace("\r", "");
 
 function basicReply(res, statusCode, message='') {
   /* Set the response status codes, writes a message if one is given, and

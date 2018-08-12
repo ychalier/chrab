@@ -92,10 +92,7 @@ function createChannel(req, res, body) {
 }
 
 
-function notifyPush(channel, channelId, login) {
-  let db = new sqlite3.Database('chat.db', (err) => {
-    if (err) { errorReply(res, err); }
-  });
+function notifyPush(db, channel, channelId, login) {
   db.all('SELECT t FROM messages WHERE channel=(?) ORDER BY t DESC LIMIT 2',
     [channelId], (err, rows) => {
     if (err) throw err;
@@ -120,7 +117,6 @@ function notifyPush(channel, channelId, login) {
       request.end();
     }
   });
-  db.close();
 }
 
 
@@ -164,11 +160,11 @@ function postMessage(req, res, body) {
                   }
                   delete pings[channel];
                 }
-                notifyPush(channel, rows[0].id, login);
+                notifyPush(db, channel, rows[0].id, login);
                 basicReply(res, 201);
               }
           });
-          handleMembership(login, rows[0].id);
+          handleMembership(db, login, rows[0].id);
         }
     });
     db.close();
@@ -319,23 +315,19 @@ function ping(req, res, body) {
 }
 
 
-function handleMembership(username, channelId) {
-  let localDb = new sqlite3.Database('chat.db', (err) => {
-    if (err) { errorReply(res, err); }
-  });
-  localDb.all('SELECT * FROM membership WHERE username=(?) AND channelId=(?)',
+function handleMembership(db, username, channelId) {
+  db.all('SELECT * FROM membership WHERE username=(?) AND channelId=(?)',
     [username, channelId], (err, rows) => {
       if (err) throw err;
       let now = new Date();
       if (rows.length == 0) {  // a new membership
-        localDb.run('INSERT INTO membership(username, channelId, lastop) '
+        db.run('INSERT INTO membership(username, channelId, lastop) '
           + 'VALUES (?, ?, ?)', [username, channelId, now.getTime()]);
       } else {  // membership renewal
-        localDb.run('UPDATE membership SET lastop=(?) WHERE id=(?)',
+        db.run('UPDATE membership SET lastop=(?) WHERE id=(?)',
           [now.getTime(), rows[0].id]);
       }
     });
-  localDb.close();
 }
 
 
