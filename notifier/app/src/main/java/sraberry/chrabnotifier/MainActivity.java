@@ -78,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
                                         serviceIntent.putExtra(LoginActivity.EXTRA_TOKEN,
                                                 token.toString());
                                         startService(serviceIntent);
+
+                                        startActivity(new Intent(context,
+                                                BackgroundActivity.class));
+
                                     }
                                 });
 

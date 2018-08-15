@@ -86,6 +86,11 @@ public class NotificationService extends Service {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        Log.i("NotificationService", "Closing notification service.");
+        super.onDestroy();
+    }
 
     private void sendNotification(String channel, String author) {
         NotificationCompat.Builder mBuilder =
