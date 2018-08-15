@@ -95,8 +95,11 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         TextView textView = rootView.findViewById(R.id.textViewChannelName);
         textView.setText(channelName);
 
-        checkBox = rootView.findViewById(R.id.checkbox);
+        if (!isProtected) {
+            rootView.findViewById(R.id.imagePadlock).setVisibility(View.GONE);
+        }
 
+        checkBox = rootView.findViewById(R.id.checkbox);
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
