@@ -1,9 +1,7 @@
 package sraberry.chrabnotifier;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +22,12 @@ import androidx.core.app.NotificationManagerCompat;
 
 public class NotificationService extends Service {
 
+    public static final String CHANNEL_ID = "chrab";
+    public static final CharSequence NOTIFICATION_CHANNEL_TITLE = "chrab";
+    public static final String NOTIFICATION_CHANNEL_DESCRIPTION = "chrab notifier";
+
+    public static final int NOTIFICATION_THRESHOLD = 1000 * 60 * 2;  // milliseconds
+
     private JSONObject token;
     private int notificationId = 0;
     private ArrayList<Channel> channels;
@@ -33,7 +37,6 @@ public class NotificationService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
@@ -53,36 +56,42 @@ public class NotificationService extends Service {
                 channels.add(new Channel(split[0], ""));
             } else if (split.length == 2 ) {
                 channels.add(new Channel(split[0], split[1]));
-            } //TODO: else log it (error or warning)
+            } else {
+                Log.w("NotificationService", "Invalid channel: " + channelString);
+            }
         }
         for (Channel channel: channels) {
             channel.ping(this, token);
         }
+        Log.i("NotificationService", "Starting notification service.");
         return foo;
 
     }
 
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "chrab";
-            String description = "chrab notifier";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel("0", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    NOTIFICATION_CHANNEL_TITLE,
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription(NOTIFICATION_CHANNEL_DESCRIPTION);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+                Log.i("NotificationService", "Successfully created notification channel.");
+            } else {
+                Log.e("NotificationService", "Notification manager is null and "
+                        + "notification channel could not be created.?");
+            }
         }
     }
 
 
     private void sendNotification(String channel, String author) {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "0")
-                .setContentTitle(channel)
-                .setContentText("New message from " + author)
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("New message from " + author)
+                .setContentText("New message from " + author + " on " + channel)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
@@ -112,7 +121,8 @@ public class NotificationService extends Service {
                             try {
 
                                 if (!token.getString("username").equals(response) &&
-                                        (lastMessage == 0 || (now - lastMessage) > 1000)) {
+                                        (lastMessage == 0 ||
+                                                (now - lastMessage) > NOTIFICATION_THRESHOLD)) {
                                     sendNotification(name, response);
                                 }
                             } catch (JSONException e) {

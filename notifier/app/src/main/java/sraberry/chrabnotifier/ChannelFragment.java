@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +16,7 @@ import android.widget.TextView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-
-
-import java.util.Date;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -35,7 +30,6 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
     private String passwordFile;
     private CheckBox checkBox;
     private boolean checked;
-    // private long lastMessage = 0;  // timestamp of last ping
 
     private void setChannelName(String channelName) {
         this.channelName = channelName;
@@ -70,7 +64,7 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         }
     }
 
-    public ChannelFragment() {
+    private ChannelFragment() {
         // Required empty public constructor
     }
 
@@ -141,8 +135,6 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
                             }
                         });
                         builder.show();
-                    } else {
-                        // ping();
                     }
                 }
             }
@@ -176,30 +168,5 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
             }
         });
     }
-
-
-
-    /*private void ping() {
-        RequestSender.ping(this.getContext(), token, channelName, password,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.i("Ping", "New message on "
-                                + channelName + " from " + response);
-                        long now = (new Date()).getTime();
-                        try {
-
-                            if (!token.getString("username").equals(response) &&
-                                    (lastMessage == 0 || (now - lastMessage) > 1000)) {
-                                //TODO: notify
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        lastMessage = now;
-                        ping();
-                    }
-                });
-    }*/
 
 }

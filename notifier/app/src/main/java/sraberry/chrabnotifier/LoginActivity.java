@@ -23,7 +23,6 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
 
     public static final String EXTRA_TOKEN = "token";
-    public static final String EXTRA_USERNAME = "username";
     public static final String FILE_TOKEN = "token.json";
     public static final String FILE_CREDENTIALS = "credentials.json";
 
