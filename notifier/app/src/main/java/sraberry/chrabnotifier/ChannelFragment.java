@@ -21,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.util.Date;
+
 import androidx.appcompat.app.AlertDialog;
 
 
@@ -32,6 +34,8 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
     private boolean isProtected;
     private String passwordFile;
     private CheckBox checkBox;
+    private boolean checked;
+    // private long lastMessage = 0;  // timestamp of last ping
 
     private void setChannelName(String channelName) {
         this.channelName = channelName;
@@ -52,6 +56,18 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
 
     private String getPasswordFile() {
         return passwordFile;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public String getIntentDetails() {
+        if (password != null) {
+            return channelName + "\t" + password;
+        } else {
+            return channelName;
+        }
     }
 
     public ChannelFragment() {
@@ -90,6 +106,7 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                checked = b;
                 if (b) {
                     if (isProtected && password == null) {
                         AlertDialog.Builder builder =
@@ -125,7 +142,7 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
                         });
                         builder.show();
                     } else {
-                        ping();
+                        // ping();
                     }
                 }
             }
@@ -160,23 +177,29 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         });
     }
 
-    private void ping() {
+
+
+    /*private void ping() {
         RequestSender.ping(this.getContext(), token, channelName, password,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Log.i("Ping", "New message on "
                                 + channelName + " from " + response);
+                        long now = (new Date()).getTime();
                         try {
-                            if (!token.getString("username").equals(response)) {
+
+                            if (!token.getString("username").equals(response) &&
+                                    (lastMessage == 0 || (now - lastMessage) > 1000)) {
                                 //TODO: notify
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        lastMessage = now;
                         ping();
                     }
                 });
-    }
+    }*/
 
 }

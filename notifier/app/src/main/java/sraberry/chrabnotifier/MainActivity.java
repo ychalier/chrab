@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import com.android.volley.Response;
@@ -18,6 +19,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String EXTRA_CHANNELS = "channels";
 
     private ArrayList<ChannelFragment> channelFragments;
 
@@ -57,6 +60,27 @@ public class MainActivity extends AppCompatActivity {
                                     ft.add(channelListLayout.getId(), fragment, "fragment");
                                     ft.commit();
                                 }
+
+                                findViewById(R.id.buttonStartService)
+                                        .setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        ArrayList<String> extraChannels = new ArrayList<>();
+                                        for (ChannelFragment channelFragment: channelFragments) {
+                                            if (channelFragment.isChecked()) {
+                                                extraChannels.add(
+                                                        channelFragment.getIntentDetails());
+                                            }
+                                        }
+                                        Intent serviceIntent = new Intent(context,
+                                                NotificationService.class);
+                                        serviceIntent.putExtra(EXTRA_CHANNELS, extraChannels);
+                                        serviceIntent.putExtra(LoginActivity.EXTRA_TOKEN,
+                                                token.toString());
+                                        startService(serviceIntent);
+                                    }
+                                });
+
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
