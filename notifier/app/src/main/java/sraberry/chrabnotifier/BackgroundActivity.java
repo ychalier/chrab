@@ -15,7 +15,7 @@ public class BackgroundActivity extends AppCompatActivity {
         setContentView(R.layout.activity_background);
 
         final Context context = this;
-        findViewById(R.id.buttonStopService).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_stop_service).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, NotificationService.class);

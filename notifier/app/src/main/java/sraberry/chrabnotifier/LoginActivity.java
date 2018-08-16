@@ -39,9 +39,9 @@ public class LoginActivity extends AppCompatActivity {
 
         tryExistingToken();
 
-        editUsername = findViewById(R.id.textInputEditTextUsername);
-        editPassword = findViewById(R.id.textInputEditTextPassword);
-        buttonLogin = findViewById(R.id.buttonLogin);
+        editUsername = findViewById(R.id.input_username);
+        editPassword = findViewById(R.id.input_password);
+        buttonLogin = findViewById(R.id.button_login);
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

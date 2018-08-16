@@ -92,14 +92,14 @@ public class ChannelFragment extends androidx.fragment.app.Fragment {
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_channel, container, false);
 
-        TextView textView = rootView.findViewById(R.id.textViewChannelName);
+        TextView textView = rootView.findViewById(R.id.text_channel_name);
         textView.setText(channelName);
 
         if (!isProtected) {
-            rootView.findViewById(R.id.imagePadlock).setVisibility(View.GONE);
+            rootView.findViewById(R.id.image_padlock).setVisibility(View.GONE);
         }
 
-        checkBox = rootView.findViewById(R.id.checkbox);
+        checkBox = rootView.findViewById(R.id.checkbox_channel);
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

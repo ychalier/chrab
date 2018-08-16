@@ -18,7 +18,7 @@
         />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonStopService"
+        android:id="@+id/button_stop_service"
         app:layout_constraintRight_toRightOf="@id/textViewHelpStopService"
         app:layout_constraintTop_toBottomOf="@id/textViewHelpStopService"
         android:layout_marginTop="16dp"

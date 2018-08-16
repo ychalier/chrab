@@ -1,38 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
     tools:context=".ChannelFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/image_padlock"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_margin="8dp"
+        android:contentDescription="@string/description_padlock"
+        android:src="@drawable/ic_lock_black_24dp"/>
+
+    <TextView
+        android:id="@+id/text_channel_name"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_weight="1"
+        android:layout_marginBottom="13dp"
+        android:paddingHorizontal="8dp"/>
 
-        <ImageView
-            android:id="@+id/imagePadlock"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_margin="8dp"
-            android:src="@drawable/ic_lock_black_24dp" />
+    <CheckBox
+        android:id="@+id/checkbox_channel"
+        android:layout_width="32dp"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/textViewChannelName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:layout_weight="1"
-            android:layout_marginBottom="13dp"
-            android:text="default" />
-
-        <CheckBox
-            android:id="@+id/checkbox"
-            android:layout_width="32dp"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

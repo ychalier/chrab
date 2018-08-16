@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 channelFragments = new ArrayList<>();
                                 LinearLayout channelListLayout =
-                                        findViewById(R.id.linearLayoutChannelList);
+                                        findViewById(R.id.layout_channel_list);
 
                                 for (int i = 0; i < channels.length(); i++) {
                                     JSONObject channelJson = channels.getJSONObject(i);
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                                     ft.commit();
                                 }
 
-                                findViewById(R.id.buttonStartService)
+                                findViewById(R.id.button_start_service)
                                         .setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
