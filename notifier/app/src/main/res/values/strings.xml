@@ -9,8 +9,8 @@
     <!-- MainActivity -->
     <string name="msg_channel_selection_description">Select the channels you want to get receive
         notifications from, then start the background service by clicking the button.</string>
-    <string name="action_start_service">Start service</string>
-    <string name="action_stop_service">Stop service</string>
+    <string name="action_start_service">Start</string>
+    <string name="action_stop_service">Stop</string>
 
     <!-- ChannelFragment -->
     <string name="description_padlock">Channel is protected.</string>

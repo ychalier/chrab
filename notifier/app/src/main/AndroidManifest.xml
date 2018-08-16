@@ -25,7 +25,6 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".BackgroundActivity"></activity>
     </application>
 
 </manifest>
