@@ -7,17 +7,17 @@ const http = require('http');
 const fs = require('fs');
 
 const options = {
-  key: fs.readFileSync('../ssl/key.pem'),
-  cert: fs.readFileSync('../ssl/cert.pem'),
-  ca: fs.readFileSync('../ssl/ca.pem')
+  key: fs.readFileSync('/home/pi/ssl/server.key'),
+  cert: fs.readFileSync('/home/pi/ssl/server.crt'),
+  ca: fs.readFileSync('/home/pi/ssl/server-ca.crt')
 };
 
 const tasks = require('./background');
 const channel = require('./channel');
 const auth = require('./auth');
 
-var portHttp = 8000;
-var portHttps = 8443;
+//var portHttp = 2001;
+var portHttps = 2001;
 
 var routes = {
   'GET': {
@@ -153,8 +153,10 @@ load_database().close((err) => {
 console.log("Starting server on port " + portHttps + "...");
 https.createServer(options, handleRequest).listen(portHttps);
 
+/*
 http.createServer((req, res) => {
   console.log(req.headers.host);
-  res.writeHead(301, {Location: `https://${req.headers.host}${req.url}`});
+  res.writeHead(301, {Location: `https://${req.headers.host}:2002${req.url}`});
   res.end();
 }).listen(portHttp);
+*/
